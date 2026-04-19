@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario Laboratorio - ITT</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -9,28 +10,49 @@
     
     <style>
         :root { --azul-itt: #1b396a; --rojo-itt: #dc3545; --naranja-itt: #fd7e14; }
-        .navbar-itt { background-color: var(--azul-itt); color: white; padding: 10px 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .header-container { display: flex; align-items: center; justify-content: space-between; }
-        .header-search { position: relative; width: 35%; }
+        .navbar-itt { background-color: var(--azul-itt); color: white; padding: 10px 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        
+        /* 2. AJUSTE RESPONSIVO: El encabezado ahora se apila en móviles */
+        .header-container { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+        
+        /* La búsqueda ocupa el 100% en móvil para que sea fácil de tocar */
+        .header-search { position: relative; width: 35%; min-width: 200px; }
+        @media (max-width: 768px) { 
+            .header-search { width: 100%; order: 3; } 
+            .navbar-itt { text-align: center; }
+            .header-container { justify-content: center; }
+        }
+
         .header-search input { background-color: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; color: white; padding: 8px 15px 8px 40px; width: 100%; transition: 0.3s; }
         .header-search input:focus { background-color: white; color: var(--azul-itt); outline: none; }
         .header-search i { position: absolute; left: 12px; top: 10px; color: rgba(255,255,255,0.6); }
-        body { background-color: #f8f9fa; }
-        .nav-tabs-itt { background-color: #f1f5f9; padding: 0 20px; border-bottom: 1px solid #dee2e6; display: flex; gap: 20px; }
-        .nav-link-itt { padding: 15px 10px; color: #64748b; text-decoration: none; font-weight: 500; cursor: pointer; }
-        .nav-link-itt.active { color: var(--azul-itt); border-bottom: 3px solid var(--azul-itt); }
-        .contenedor-inventario { background: white; border-radius: 12px; padding: 25px; margin-top: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         
+        body { background-color: #f8f9fa; }
+        .nav-tabs-itt { background-color: #f1f5f9; padding: 0 20px; border-bottom: 1px solid #dee2e6; display: flex; gap: 20px; overflow-x: auto; }
+        .nav-link-itt { padding: 15px 10px; color: #64748b; text-decoration: none; font-weight: 500; cursor: pointer; white-space: nowrap; }
+        .nav-link-itt.active { color: var(--azul-itt); border-bottom: 3px solid var(--azul-itt); }
+        
+        .contenedor-inventario { background: white; border-radius: 12px; padding: 15px; margin-top: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow-x: auto; }
+        
+        /* 3. TABLA RESPONSIVA: Permite deslizar si es muy ancha */
+        .table { min-width: 600px; }
+
         .solo-admin { display: none !important; }
         .admin-activo .solo-admin { display: inline-block !important; }
         
-        .status-funcionando { color: #198754; font-weight: bold; background-color: #e8f5e9; padding: 4px 8px; border-radius: 4px; }
-        .status-mantenimiento { color: var(--naranja-itt); font-weight: bold; background-color: #fff3e6; padding: 4px 8px; border-radius: 4px; }
-        .status-inactiva { color: var(--rojo-itt); font-weight: bold; background-color: #f8d7da; padding: 4px 8px; border-radius: 4px; }
+        .status-funcionando { color: #198754; font-weight: bold; background-color: #e8f5e9; padding: 4px 8px; border-radius: 4px; white-space: nowrap; }
+        .status-mantenimiento { color: var(--naranja-itt); font-weight: bold; background-color: #fff3e6; padding: 4px 8px; border-radius: 4px; white-space: nowrap; }
+        .status-inactiva { color: var(--rojo-itt); font-weight: bold; background-color: #f8d7da; padding: 4px 8px; border-radius: 4px; white-space: nowrap; }
 
         .nombre-equipo { color: var(--azul-itt); text-decoration: none; cursor: pointer; font-weight: bold; }
         .nombre-equipo:hover { text-decoration: underline; }
         .modal-header-itt { background-color: var(--azul-itt); color: white; }
+
+        /* Ajuste de botones en móvil */
+        @media (max-width: 576px) {
+            .d-flex.justify-content-between { flex-direction: column; gap: 10px; align-items: flex-start !important; }
+            .btn { width: 100%; margin-bottom: 5px; }
+        }
     </style>
 </head>
 <body>
@@ -47,7 +69,7 @@
         </div>
         <div class="text-end">
             <div id="info-usuario" class="small opacity-75 mb-1">Modo: Invitado</div>
-            <button id="btn-pass" class="btn btn-sm btn-outline-light py-0 me-2 solo-admin" onclick="cambiarPassword()">Cambiar Clave</button>
+            <button id="btn-pass" class="btn btn-sm btn-outline-light py-0 me-2 solo-admin" onclick="cambiarPassword()">Clave</button>
             <button id="btn-auth" class="btn btn-sm btn-light py-0 fw-bold" onclick="manejarAuth()">Entrar</button>
         </div>
     </div>
@@ -66,14 +88,14 @@
                 <i class="bi bi-geo-alt"></i> Ubicaciones
             </button>
             <button class="btn btn-primary px-4 solo-admin" style="background-color: var(--azul-itt); border: none;" onclick="prepararFormulario()" data-bs-toggle="modal" data-bs-target="#modalEquipo">
-                + Agregar artículo
+                + Agregar
             </button>
         </div>
     </div>
     <div class="contenedor-inventario">
         <table class="table align-middle">
             <thead class="text-secondary small text-uppercase">
-                <tr><th>Nombre</th><th>Cantidad</th><th>Ubicación</th><th>Estado</th><th class="text-end">Acciones</th></tr>
+                <tr><th>Nombre</th><th>Cant.</th><th>Ubicación</th><th>Estado</th><th class="text-end">Acciones</th></tr>
             </thead>
             <tbody id="contenido-tabla"></tbody>
         </table>
@@ -131,15 +153,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const URL_API = ' https://inventario-laboratorio-itt.onrender.com';
+    const URL_API = 'https://inventario-laboratorio-itt.onrender.com';
     let listaEquipos = [], listaLabs = [], pestañaActual = 'Equipo', esAdmin = false;
 
-    // Autocompletado de cantidad
-    document.getElementById('cantidad').addEventListener('input', function() { 
-        document.getElementById('operativos').value = this.value; 
-    });
+    // --- EL RESTO DE TU LÓGICA DE JAVASCRIPT SE MANTIENE EXACTAMENTE IGUAL ---
+    document.getElementById('cantidad').addEventListener('input', function() { document.getElementById('operativos').value = this.value; });
 
-    // --- FUNCIONES DE UBICACIONES (LABORATORIOS) ---
     async function agregarLab() {
         const nombre = document.getElementById('nuevoLabNombre').value;
         if (!nombre) return;
@@ -163,7 +182,6 @@
             </li>`).join('') || '<li class="list-group-item small text-muted">No hay ubicaciones</li>';
     }
 
-    // --- AUTENTICACIÓN Y PERMISOS ---
     async function manejarAuth() {
         if (!esAdmin) {
             const { value: user } = await Swal.fire({ title: 'Usuario ITT', input: 'text', confirmButtonColor: '#1b396a', showCancelButton: true });
@@ -188,7 +206,7 @@
         const { value: new_pass } = await Swal.fire({ title: 'Nueva Clave', input: 'password', confirmButtonColor: '#1b396a', showCancelButton: true });
         if (new_pass) {
             const res = await fetch(`${URL_API}/cambiar-password`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user, old_pass, new_pass }) });
-            if (res.ok) { Swal.fire('Éxito', 'Clave actualizada en MariaDB', 'success'); }
+            if (res.ok) { Swal.fire('Éxito', 'Clave actualizada', 'success'); }
             else { Swal.fire('Error', 'La clave actual no es correcta', 'error'); }
         }
     }
