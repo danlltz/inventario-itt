@@ -39,11 +39,11 @@ class Usuario(db.Model):
     id = db.Column(db.String(50), primary_key=True)
     password = db.Column(db.String(255), nullable=False)
 
-# Crear las tablas automáticamente en la nube
 with app.app_context():
     db.create_all()
 
 # --- RUTAS ---
+
 @app.route('/login', methods=['POST'])
 def login():
     datos = request.json
@@ -59,30 +59,36 @@ def obtener_equipos():
 @app.route('/agregar', methods=['POST'])
 def agregar():
     d = request.json
-    
-    # --- NUEVAS VALIDACIONES ---
-    cant = d.get('cantidad', 0)
-    oper = d.get('operativos', 0)
+    # Validación de seguridad
+    if int(d['cantidad']) < 0 or int(d.get('operativos', 0)) < 0:
+        return jsonify({"error": "No negativos"}), 400
+    if int(d.get('operativos', 0)) > int(d['cantidad']):
+        return jsonify({"error": "Operativos mayor al total"}), 400
 
-    # 1. No permitir menores a cero
-    if cant < 0 or oper < 0:
-        return jsonify({"error": "No se permiten valores negativos"}), 400
-    
-    # 2. Operativos no mayor a cantidad total
-    if oper > cant:
-        return jsonify({"error": "Los operativos no pueden superar al total"}), 400
-
-    # Si pasa las validaciones, se guarda
-    nuevo = Equipo(
-        nombre=d['nombre'], 
-        descripcion=d.get('descripcion'), 
-        cantidad=cant, 
-        operativos=oper, 
-        ubicacion=d['ubicacion'], 
-        tipo=d['tipo'], 
-        estado=d['estado']
-    )
+    nuevo = Equipo(nombre=d['nombre'], descripcion=d.get('descripcion'), cantidad=d['cantidad'], operativos=d.get('operativos'), ubicacion=d['ubicacion'], tipo=d['tipo'], estado=d['estado'])
     db.session.add(nuevo)
+    db.session.commit()
+    return jsonify({"m":"ok"})
+
+@app.route('/editar/<int:id>', methods=['PUT'])
+def editar(id):
+    d = request.json
+    e = Equipo.query.get(id)
+    if not e: return jsonify({"m":"no encontrado"}), 404
+    
+    # Validación de seguridad
+    if int(d['cantidad']) < 0 or int(d.get('operativos', 0)) < 0:
+        return jsonify({"error": "No negativos"}), 400
+    if int(d.get('operativos', 0)) > int(d['cantidad']):
+        return jsonify({"error": "Operativos mayor al total"}), 400
+
+    e.nombre = d['nombre']
+    e.descripcion = d.get('descripcion')
+    e.cantidad = d['cantidad']
+    e.operativos = d['operativos']
+    e.ubicacion = d['ubicacion']
+    e.tipo = d['tipo']
+    e.estado = d['estado']
     db.session.commit()
     return jsonify({"m":"ok"})
 
