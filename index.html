@@ -2,7 +2,8 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Inventario Laboratorio - ITT</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Inventario Laboratorio - ITT</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -10,39 +11,48 @@
     <style>
         :root { --azul-itt: #1b396a; --rojo-itt: #dc3545; --naranja-itt: #fd7e14; }
         
-        /* --- Actualización del Header --- */
+        /* --- HEADER RESPONSIVO TIPO IMAGEN --- */
         .navbar-itt { 
             background-color: var(--azul-itt); 
             color: white; 
-            padding: 15px 20px; /* Un poco más de padding */
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            padding: 15px 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1000;
         }
 
         .header-container { 
             display: flex; 
-            flex-wrap: wrap; /* Permite que el buscador baje en móvil */
+            flex-wrap: wrap; 
             align-items: center; 
             justify-content: space-between; 
-            gap: 10px; /* Espacio entre elementos */
         }
 
-        /* Bloque de Título y Subtítulo */
-        .header-titles {
-            flex: 1 1 auto; /* Ocupa el espacio disponible a la izquierda */
+        .header-titles { flex: 1; }
+        .header-titles h5 { font-size: 1.15rem; margin-bottom: 2px; }
+
+        .header-user-info { 
+            text-align: right; 
+            z-index: 1100; /* Asegura que esté por encima de todo */
         }
 
-        /* Bloque de Usuario (Modo y Botón) */
-        .header-user-info {
-            text-align: right;
-            flex: 0 0 auto; /* Se mantiene a la derecha */
+        /* Botón Entrar optimizado para móvil */
+        #btn-auth {
+            background-color: white !important;
+            color: var(--azul-itt) !important;
+            border: none;
+            padding: 6px 18px !important;
+            font-weight: 600;
+            border-radius: 6px;
+            touch-action: manipulation;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* Buscador - Ajustado para móvil y desktop */
         .header-search { 
             position: relative; 
-            width: 100%; /* Por defecto ocupa todo el ancho (para móvil) */
-            order: 3; /* Asegura que en móvil baje después de los títulos y el usuario */
-            margin-top: 10px;
+            width: 100%; 
+            margin-top: 15px;
+            order: 3;
         }
 
         .header-search input { 
@@ -50,58 +60,45 @@
             border: 1px solid rgba(255,255,255,0.3); 
             border-radius: 8px; 
             color: white; 
-            padding: 10px 15px 10px 45px; /* Más padding para el ícono */
+            padding: 12px 15px 12px 45px;
             width: 100%; 
-            transition: 0.3s; 
+            font-size: 16px; /* Evita zoom automático en iPhone */
         }
 
-        .header-search input:focus { background-color: white; color: var(--azul-itt); outline: none; }
         .header-search i { 
             position: absolute; 
             left: 15px; 
             top: 50%;
-            transform: translateY(-50%); /* Centrado vertical */
-            color: rgba(255,255,255,0.6); 
-            font-size: 1.1rem;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.6);
         }
-        /* --- Fin Actualización del Header --- */
 
+        /* --- TABS Y CONTENIDO --- */
         body { background-color: #f8f9fa; }
-        .nav-tabs-itt { background-color: #f1f5f9; padding: 0 20px; border-bottom: 1px solid #dee2e6; display: flex; gap: 20px; }
-        .nav-link-itt { padding: 15px 10px; color: #64748b; text-decoration: none; font-weight: 500; cursor: pointer; }
-        .nav-link-itt.active { color: var(--azul-itt); border-bottom: 3px solid var(--azul-itt); }
-        .contenedor-inventario { background: white; border-radius: 12px; padding: 25px; margin-top: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .nav-tabs-itt { background-color: #f1f5f9; padding: 0 10px; border-bottom: 1px solid #dee2e6; display: flex; }
+        .nav-link-itt { flex: 1; text-align: center; padding: 15px 5px; color: #64748b; text-decoration: none; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; }
+        .nav-link-itt.active { color: var(--azul-itt); border-bottom-color: var(--azul-itt); }
+        
+        .contenedor-inventario { background: white; border-radius: 12px; padding: 15px; margin-top: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        
+        /* Ajustes de Tabla para Celular */
+        .table-responsive { border: none; }
+        .table { font-size: 0.9rem; }
         
         .solo-admin { display: none !important; }
         .admin-activo .solo-admin { display: inline-block !important; }
         
-        .status-funcionando { color: #198754; font-weight: bold; background-color: #e8f5e9; padding: 4px 8px; border-radius: 4px; }
-        .status-mantenimiento { color: var(--naranja-itt); font-weight: bold; background-color: #fff3e6; padding: 4px 8px; border-radius: 4px; }
-        .status-inactiva { color: var(--rojo-itt); font-weight: bold; background-color: #f8d7da; padding: 4px 8px; border-radius: 4px; }
+        .status-funcionando { color: #198754; font-weight: bold; background-color: #e8f5e9; padding: 3px 6px; border-radius: 4px; }
+        .status-mantenimiento { color: var(--naranja-itt); font-weight: bold; background-color: #fff3e6; padding: 3px 6px; border-radius: 4px; }
+        .status-inactiva { color: var(--rojo-itt); font-weight: bold; background-color: #f8d7da; padding: 3px 6px; border-radius: 4px; }
 
-        .nombre-equipo { color: var(--azul-itt); text-decoration: none; cursor: pointer; font-weight: bold; }
-        .nombre-equipo:hover { text-decoration: underline; }
+        .nombre-equipo { color: var(--azul-itt); text-decoration: none; font-weight: bold; }
         .modal-header-itt { background-color: var(--azul-itt); color: white; }
 
-        /* Estilo para el botón de Entrar como el de la imagen (blanco con borde azul) */
-        #btn-auth.btn-light {
-            background-color: white !important;
-            color: var(--azul-itt) !important;
-            border: 1px solid white;
-        }
-
-        /* MEDIA QUERY: Ajustes para pantallas de escritorio (cuando el layout cambia) */
         @media (min-width: 768px) {
-            .header-search {
-                width: 35%; /* Ancho fijo para buscador en escritorio */
-                order: 2; /* Vuelve a estar entre el título y el usuario */
-                margin-top: 0;
-                margin-left: 20px;
-                margin-right: 20px;
-            }
-            .header-container {
-                flex-wrap: nowrap; /* Evita que los elementos se apilen */
-            }
+            .header-search { width: 35%; margin-top: 0; order: 2; margin-left: 20px; }
+            .header-container { flex-wrap: nowrap; }
+            .nav-link-itt { flex: none; padding: 15px 25px; }
         }
     </style>
 </head>
@@ -111,13 +108,13 @@
     <div class="header-container">
         <div class="header-titles">
             <h5 class="mb-0 fw-bold">Inventario de Laboratorio</h5>
-            <p class="mb-0 small opacity-75">Tecnológico Nacional de México | Tijuana</p>
+            <p class="mb-0 small opacity-75">TecNM | Tijuana</p>
         </div>
 
-        <div class="header-user-info text-end">
-            <div id="info-usuario" class="small opacity-75 mb-1">Modo: Invitado</div>
+        <div class="header-user-info">
+            <div id="info-usuario" class="small opacity-75 mb-1" style="font-size: 0.75rem;">Modo: Invitado</div>
             <button id="btn-pass" class="btn btn-sm btn-outline-light py-0 me-1 solo-admin" onclick="cambiarPassword()">Clave</button>
-            <button id="btn-auth" class="btn btn-sm btn-light py-0" onclick="manejarAuth()">Entrar</button>
+            <button id="btn-auth" class="btn btn-sm" onclick="manejarAuth()">Entrar</button>
         </div>
 
         <div class="header-search">
@@ -135,44 +132,36 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h4 id="titulo-seccion" class="fw-bold mb-0">Equipos</h4>
-        <div>
-            <button class="btn btn-outline-secondary btn-sm me-1 solo-admin" onclick="abrirGestionLabs()">
-                <i class="bi bi-geo-alt"></i> Ubicaciones
-            </button>
-            <button class="btn btn-primary btn-sm px-3 solo-admin" style="background-color: var(--azul-itt); border: none;" onclick="prepararFormulario()" data-bs-toggle="modal" data-bs-target="#modalEquipo">
-                + Agregar
-            </button>
+        <div class="solo-admin">
+            <button class="btn btn-outline-secondary btn-sm" onclick="abrirGestionLabs()"><i class="bi bi-geo-alt"></i></button>
+            <button class="btn btn-primary btn-sm px-3" style="background-color: var(--azul-itt); border: none;" onclick="prepararFormulario()" data-bs-toggle="modal" data-bs-target="#modalEquipo">+</button>
         </div>
     </div>
+
     <div class="contenedor-inventario">
         <div class="table-responsive">
-            <table class="table align-middle table-sm"> <thead class="text-secondary small text-uppercase">
-                    <tr><th>Nombre</th><th>Cantidad</th><th>Ubicación</th><th>Estado</th><th class="text-end">Acciones</th></tr>
+            <table class="table align-middle">
+                <thead class="text-secondary small text-uppercase">
+                    <tr><th>Nombre</th><th>Cant.</th><th>Ubicación</th><th>Estado</th><th class="text-end">Acc.</th></tr>
                 </thead>
-                <tbody id="contenido-tabla">
-                    <tr>
-                        <td><a class="nombre-equipo" onclick="verDesc(1)">yoy</a></td>
-                        <td>3/5</td>
-                        <td>lab 81</td>
-                        <td><span class="status-funcionando">F</span></td> <td class="text-end"><i class="bi bi-lock text-muted"></i></td>
-                    </tr>
-                </tbody>
+                <tbody id="contenido-tabla"></tbody>
             </table>
         </div>
     </div>
 </div>
 
 <div class="modal fade" id="modalEquipo" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered"> <div class="modal-content">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
             <form id="form-equipo">
-                <div class="modal-header modal-header-itt"><h5 class="modal-title fw-bold">Detalle del Artículo</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+                <div class="modal-header modal-header-itt"><h5 class="modal-title fw-bold">Detalle</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <input type="hidden" id="id-equipo">
                     <div class="mb-3"><label class="form-label fw-bold">Nombre</label><input type="text" id="nombre" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label fw-bold">Descripción</label><textarea id="descripcion" class="form-control" rows="3"></textarea></div>
+                    <div class="mb-3"><label class="form-label fw-bold">Descripción</label><textarea id="descripcion" class="form-control" rows="2"></textarea></div>
                     <div class="row">
-                        <div class="col-6 mb-3"><label class="form-label fw-bold">Total</label><input type="number" id="cantidad" class="form-control" min="0" value="1" required></div>
-                        <div class="col-6 mb-3"><label class="form-label fw-bold text-success">Funcionando</label><input type="number" id="operativos" class="form-control" min="0" value="1" required></div>
+                        <div class="col-6 mb-3"><label class="form-label fw-bold">Total</label><input type="number" id="cantidad" class="form-control" min="0" required></div>
+                        <div class="col-6 mb-3"><label class="form-label fw-bold">Funcionando</label><input type="number" id="operativos" class="form-control" min="0" required></div>
                     </div>
                     <div class="row">
                         <div class="col-6 mb-3"><label class="form-label fw-bold">Ubicación</label><select id="ubicacion" class="form-select"></select></div>
@@ -180,7 +169,7 @@
                     </div>
                     <div class="mb-3"><label class="form-label fw-bold">Estado</label><select id="estado" class="form-select"><option value="Funcionando">Funcionando</option><option value="Mantenimiento">Mantenimiento</option><option value="Inactiva">Inactiva</option></select></div>
                 </div>
-                <div class="modal-footer"><button type="submit" class="btn btn-primary w-100" style="background-color: var(--azul-itt);">Guardar Cambios</button></div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary w-100" style="background-color: var(--azul-itt);">Guardar</button></div>
             </form>
         </div>
     </div>
@@ -210,144 +199,98 @@
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // --- TU LÓGICA JAVASCRIPT SE MANTIENE EXACTAMENTE IGUAL ---
     const URL_API = 'https://inventario-laboratorio-itt.onrender.com';
     let listaEquipos = [], listaLabs = [], pestañaActual = 'Equipo', esAdmin = false;
 
-    // --- VALIDACIÓN DE CANTIDADES (CON SEGUIMIENTO AUTOMÁTICO) ---
+    // Sincronizar cantidades
     document.getElementById('cantidad').addEventListener('input', function() { 
-        if (this.value < 0) this.value = 0;
         document.getElementById('operativos').value = this.value;
         document.getElementById('operativos').setAttribute('max', this.value);
     });
-
-    document.getElementById('operativos').addEventListener('input', function() {
-        if (this.value < 0) this.value = 0;
-        const total = parseInt(document.getElementById('cantidad').value) || 0;
-        if (parseInt(this.value) > total) { this.value = total; }
-    });
-
-    // --- FUNCIONES DE UBICACIONES (LABORATORIOS) ---
-    async function agregarLab() {
-        const nombre = document.getElementById('nuevoLabNombre').value;
-        if (!nombre) return;
-        await fetch(`${URL_API}/laboratorios`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({nombre}) });
-        document.getElementById('nuevoLabNombre').value = '';
-        await cargarDatos();
-        actualizarListaGestionLabs();
-    }
-
-    async function eliminarLab(id) {
-        const lab = listaLabs.find(l => l.id === id);
-        const { isConfirmed } = await Swal.fire({
-            title: '¿Eliminar ubicación?',
-            text: `Vas a borrar "${lab ? lab.nombre : 'esta ubicación'}". Los equipos no se borrarán pero perderán su referencia.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sí, borrar',
-            cancelButtonText: 'Cancelar'
-        });
-
-        if (isConfirmed) {
-            const res = await fetch(`${URL_API}/laboratorios/${id}`, { method: 'DELETE' });
-            if (res.ok) { await cargarDatos(); actualizarListaGestionLabs(); }
-        }
-    }
-
-    function abrirGestionLabs() { actualizarListaGestionLabs(); new bootstrap.Modal(document.getElementById('modalLabs')).show(); }
-
-    function actualizarListaGestionLabs() {
-        document.getElementById('lista-labs-gestion').innerHTML = listaLabs.map(l => `
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                ${l.nombre} <button class="btn btn-sm text-danger" onclick="eliminarLab(${l.id})"><i class="bi bi-x-circle"></i></button>
-            </li>`).join('') || '<li class="list-group-item small text-muted">No hay ubicaciones</li>';
-        
-        document.getElementById('ubicacion').innerHTML = listaLabs.map(l => `<option value="${l.nombre}">${l.nombre}</option>`).join('');
-    }
-
-    // --- AUTENTICACIÓN Y PERMISOS ---
-    async function manejarAuth() {
-        if (!esAdmin) {
-            const { value: user } = await Swal.fire({ title: 'Usuario ITT', input: 'text', confirmButtonColor: '#1b396a', showCancelButton: true });
-            if (!user) return;
-            const { value: pass } = await Swal.fire({ title: 'Contraseña', input: 'password', confirmButtonColor: '#1b396a', showCancelButton: true });
-            if (pass) {
-                const res = await fetch(`${URL_API}/login`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({user, pass}) });
-                if (res.ok) { 
-                    esAdmin = true; localStorage.setItem("itt_user", user); localStorage.setItem("itt_token", "active"); aplicarPermisos(); 
-                } else { Swal.fire({ icon: 'error', title: 'Error', text: 'Credenciales inválidas' }); }
-            }
-        } else {
-            const res = await Swal.fire({ title: '¿Cerrar sesión?', showCancelButton: true, confirmButtonColor: '#dc3545' });
-            if (res.isConfirmed) { esAdmin = false; localStorage.clear(); aplicarPermisos(); }
-        }
-    }
-
-    async function cambiarPassword() {
-        const user = localStorage.getItem("itt_user");
-        const { value: old_pass } = await Swal.fire({ title: 'Clave Actual', input: 'password', confirmButtonColor: '#1b396a', showCancelButton: true });
-        if (!old_pass) return;
-        const { value: new_pass } = await Swal.fire({ title: 'Nueva Clave', input: 'password', confirmButtonColor: '#1b396a', showCancelButton: true });
-        if (new_pass) {
-            const res = await fetch(`${URL_API}/cambiar-password`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user, old_pass, new_pass }) });
-            if (res.ok) { Swal.fire('Éxito', 'Clave actualizada en MariaDB', 'success'); }
-            else { Swal.fire('Error', 'La clave actual no es correcta', 'error'); }
-        }
-    }
-
-    function aplicarPermisos() {
-        const token = localStorage.getItem("itt_token");
-        const user = localStorage.getItem("itt_user");
-        esAdmin = (token === "active" && user);
-        document.body.classList.toggle('admin-activo', esAdmin);
-        document.getElementById('info-usuario').innerText = esAdmin ? "Sesión: " + user : "Modo: Invitado";
-        document.getElementById('btn-auth').innerText = esAdmin ? "Salir" : "Entrar";
-        
-        // Modificar el estilo del botón cuando está logueado para que no pierda visibilidad
-        if (esAdmin) {
-            document.getElementById('btn-auth').classList.remove('btn-light');
-            document.getElementById('btn-auth').classList.add('btn-danger');
-        } else {
-            document.getElementById('btn-auth').classList.add('btn-light');
-            document.getElementById('btn-auth').classList.remove('btn-danger');
-        }
-
-        renderizarTabla(listaEquipos.filter(e => e.tipo === pestañaActual));
-    }
 
     async function cargarDatos() {
         try {
             const [resE, resL] = await Promise.all([fetch(`${URL_API}/equipos`), fetch(`${URL_API}/laboratorios`)]);
             listaEquipos = await resE.json(); 
             listaLabs = await resL.json();
-            actualizarListaGestionLabs();
-            aplicarPermisos();
-        } catch (e) { console.error(e); }
+            actualizarUI();
+        } catch (e) { console.error("Error cargando datos", e); }
+    }
+
+    function actualizarUI() {
+        actualizarListaGestionLabs();
+        aplicarPermisos();
     }
 
     function renderizarTabla(datos) {
         document.getElementById('contenido-tabla').innerHTML = datos.map(item => {
             const cant = (parseInt(item.operativos) === parseInt(item.cantidad)) ? item.cantidad : `${item.operativos}/${item.cantidad}`;
             const cls = item.estado === 'Mantenimiento' ? 'status-mantenimiento' : (item.estado === 'Inactiva' ? 'status-inactiva' : 'status-funcionando');
-            // He abreviado el texto de estado a solo la primera letra para móvil como en la imagen (opcional)
-            const estadoCompacto = item.estado.charAt(0).toUpperCase(); 
-            
-            return `<tr><td><a class="nombre-equipo" onclick="verDesc(${item.id})">${item.nombre}</a></td><td>${cant}</td><td>${item.ubicacion}</td><td><span class="${cls}">${item.estado}</span></td>
-            <td class="text-end">${esAdmin ? `<button class="btn btn-sm text-primary py-0" onclick="llenarForm(${item.id})"><i class="bi bi-pencil"></i></button><button class="btn btn-sm text-danger py-0" onclick="eliminarEq(${item.id})"><i class="bi bi-trash"></i></button>` : '<i class="bi bi-lock text-muted"></i>'}</td></tr>`;
+            return `<tr>
+                <td><a class="nombre-equipo" onclick="verDesc(${item.id})">${item.nombre}</a></td>
+                <td>${cant}</td>
+                <td>${item.ubicacion}</td>
+                <td><span class="${cls}">${item.estado.charAt(0)}</span></td>
+                <td class="text-end">${esAdmin ? 
+                    `<i class="bi bi-pencil text-primary me-2" onclick="llenarForm(${item.id})"></i><i class="bi bi-trash text-danger" onclick="eliminarEq(${item.id})"></i>` : 
+                    '<i class="bi bi-lock text-muted"></i>'}</td>
+            </tr>`;
         }).join('');
     }
 
-    async function eliminarEq(id) { if ((await Swal.fire({title:'¿Borrar?', showCancelButton:true, confirmButtonColor: '#dc3545'})).isConfirmed) { await fetch(`${URL_API}/eliminar/${id}`, {method:'DELETE'}); cargarDatos(); } }
-    
-    function prepararFormulario() { 
-        document.getElementById('id-equipo').value = ''; 
-        document.getElementById('form-equipo').reset(); 
-        document.getElementById('tipo').value = pestañaActual; 
+    async function manejarAuth() {
+        if (!esAdmin) {
+            const { value: user } = await Swal.fire({ title: 'Usuario', input: 'text', confirmButtonColor: '#1b396a' });
+            if (!user) return;
+            const { value: pass } = await Swal.fire({ title: 'Password', input: 'password', confirmButtonColor: '#1b396a' });
+            if (pass) {
+                const res = await fetch(`${URL_API}/login`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({user, pass}) });
+                if (res.ok) { 
+                    esAdmin = true; localStorage.setItem("itt_user", user); localStorage.setItem("itt_token", "active"); aplicarPermisos(); 
+                } else { Swal.fire('Error', 'Credenciales incorrectas', 'error'); }
+            }
+        } else {
+            const res = await Swal.fire({ title: '¿Cerrar sesión?', showCancelButton: true });
+            if (res.isConfirmed) { esAdmin = false; localStorage.clear(); aplicarPermisos(); }
+        }
     }
+
+    function aplicarPermisos() {
+        const token = localStorage.getItem("itt_token");
+        const user = localStorage.getItem("itt_user");
+        esAdmin = (token === "active");
+        document.body.classList.toggle('admin-activo', esAdmin);
+        document.getElementById('info-usuario').innerText = esAdmin ? "Sesión: " + user : "Modo: Invitado";
+        document.getElementById('btn-auth').innerText = esAdmin ? "Salir" : "Entrar";
+        renderizarTabla(listaEquipos.filter(e => e.tipo === pestañaActual));
+    }
+
+    // Funciones auxiliares (Formulario, Labs, Filtros)
+    function cambiarPestaña(t) { 
+        pestañaActual = t; 
+        document.querySelectorAll('.nav-link-itt').forEach(l => l.classList.remove('active')); 
+        document.getElementById('tab-'+t).classList.add('active'); 
+        document.getElementById('titulo-seccion').innerText = t; 
+        renderizarTabla(listaEquipos.filter(e => e.tipo === t)); 
+    }
+
+    function filtrarPorNombre() { 
+        const txt = document.getElementById('inputBuscador').value.toLowerCase(); 
+        renderizarTabla(listaEquipos.filter(e => e.tipo === pestañaActual && e.nombre.toLowerCase().includes(txt))); 
+    }
+
+    function verDesc(id) { 
+        const e = listaEquipos.find(i => i.id === id); 
+        document.getElementById('descTitulo').innerText = e.nombre; 
+        document.getElementById('descTexto').innerText = e.descripcion || "Sin descripción."; 
+        new bootstrap.Modal(document.getElementById('modalVerDescripcion')).show(); 
+    }
+
+    async function eliminarEq(id) { if ((await Swal.fire({title:'¿Borrar?', showCancelButton:true})).isConfirmed) { await fetch(`${URL_API}/eliminar/${id}`, {method:'DELETE'}); cargarDatos(); } }
+    
+    function prepararFormulario() { document.getElementById('id-equipo').value = ''; document.getElementById('form-equipo').reset(); document.getElementById('tipo').value = pestañaActual; }
 
     function llenarForm(id) {
         const e = listaEquipos.find(i => i.id === id);
@@ -378,25 +321,22 @@
         bootstrap.Modal.getInstance(document.getElementById('modalEquipo')).hide(); cargarDatos();
     });
 
-    function cambiarPestaña(t) { 
-        pestañaActual = t; 
-        document.querySelectorAll('.nav-link-itt').forEach(l => l.classList.remove('active')); 
-        document.getElementById('tab-'+t).classList.add('active'); 
-        document.getElementById('titulo-seccion').innerText = t; 
-        renderizarTabla(listaEquipos.filter(e => e.tipo === t)); 
+    function actualizarListaGestionLabs() {
+        document.getElementById('lista-labs-gestion').innerHTML = listaLabs.map(l => `<li class="list-group-item d-flex justify-content-between">${l.nombre} <i class="bi bi-x-circle text-danger" onclick="eliminarLab(${l.id})"></i></li>`).join('');
+        document.getElementById('ubicacion').innerHTML = listaLabs.map(l => `<option value="${l.nombre}">${l.nombre}</option>`).join('');
     }
 
-    function filtrarPorNombre() { 
-        const txt = document.getElementById('inputBuscador').value.toLowerCase(); 
-        renderizarTabla(listaEquipos.filter(e => e.tipo === pestañaActual && e.nombre.toLowerCase().includes(txt))); 
+    async function agregarLab() {
+        const nombre = document.getElementById('nuevoLabNombre').value;
+        if (!nombre) return;
+        await fetch(`${URL_API}/laboratorios`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({nombre}) });
+        document.getElementById('nuevoLabNombre').value = '';
+        cargarDatos();
     }
 
-    function verDesc(id) { 
-        const e = listaEquipos.find(i => i.id === id); 
-        document.getElementById('descTitulo').innerText = e.nombre; 
-        document.getElementById('descTexto').innerText = e.descripcion || "Sin descripción."; 
-        new bootstrap.Modal(document.getElementById('modalVerDescripcion')).show(); 
-    }
+    async function eliminarLab(id) { if ((await Swal.fire({title:'¿Borrar ubicación?', showCancelButton:true})).isConfirmed) { await fetch(`${URL_API}/laboratorios/${id}`, { method: 'DELETE' }); cargarDatos(); } }
+    
+    function abrirGestionLabs() { new bootstrap.Modal(document.getElementById('modalLabs')).show(); }
 
     cargarDatos();
 </script>
