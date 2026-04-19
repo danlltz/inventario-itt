@@ -90,8 +90,8 @@
                     <div class="mb-3"><label class="form-label fw-bold">Nombre</label><input type="text" id="nombre" class="form-control" required></div>
                     <div class="mb-3"><label class="form-label fw-bold">Descripción</label><textarea id="descripcion" class="form-control" rows="3"></textarea></div>
                     <div class="row">
-                        <div class="col-6 mb-3"><label class="form-label fw-bold">Total</label><input type="number" id="cantidad" class="form-control" value="1" required></div>
-                        <div class="col-6 mb-3"><label class="form-label fw-bold text-success">Funcionando</label><input type="number" id="operativos" class="form-control" value="1" required></div>
+                        <div class="col-6 mb-3"><label class="form-label fw-bold">Total</label><input type="number" id="cantidad" class="form-control" min="0" value="1" required></div>
+                        <div class="col-6 mb-3"><label class="form-label fw-bold text-success">Funcionando</label><input type="number" id="operativos" class="form-control" min="0" value="1" required></div>
                     </div>
                     <div class="row">
                         <div class="col-6 mb-3"><label class="form-label fw-bold">Ubicación</label><select id="ubicacion" class="form-select"></select></div>
@@ -134,9 +134,20 @@
     const URL_API = ' https://inventario-laboratorio-itt.onrender.com';
     let listaEquipos = [], listaLabs = [], pestañaActual = 'Equipo', esAdmin = false;
 
-    // Autocompletado de cantidad
+    // --- VALIDACIÓN DE CANTIDADES ---
     document.getElementById('cantidad').addEventListener('input', function() { 
-        document.getElementById('operativos').value = this.value; 
+        if (this.value < 0) this.value = 0;
+        if (parseInt(document.getElementById('operativos').value) > parseInt(this.value)) {
+            document.getElementById('operativos').value = this.value;
+        }
+    });
+
+    document.getElementById('operativos').addEventListener('input', function() {
+        if (this.value < 0) this.value = 0;
+        const total = parseInt(document.getElementById('cantidad').value) || 0;
+        if (parseInt(this.value) > total) {
+            this.value = total;
+        }
     });
 
     // --- FUNCIONES DE UBICACIONES (LABORATORIOS) ---
@@ -150,8 +161,22 @@
     }
 
     async function eliminarLab(id) {
-        const res = await fetch(`${URL_API}/laboratorios/${id}`, { method: 'DELETE' });
-        if (res.ok) { await cargarDatos(); actualizarListaGestionLabs(); }
+        const lab = listaLabs.find(l => l.id === id);
+        const { isConfirmed } = await Swal.fire({
+            title: '¿Eliminar ubicación?',
+            text: `Vas a borrar "${lab ? lab.nombre : 'esta ubicación'}". Los equipos no se borrarán pero perderán su referencia.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, borrar',
+            cancelButtonText: 'Cancelar'
+        });
+
+        if (isConfirmed) {
+            const res = await fetch(`${URL_API}/laboratorios/${id}`, { method: 'DELETE' });
+            if (res.ok) { await cargarDatos(); actualizarListaGestionLabs(); }
+        }
     }
 
     function abrirGestionLabs() { actualizarListaGestionLabs(); new bootstrap.Modal(document.getElementById('modalLabs')).show(); }
@@ -161,6 +186,9 @@
             <li class="list-group-item d-flex justify-content-between align-items-center">
                 ${l.nombre} <button class="btn btn-sm text-danger" onclick="eliminarLab(${l.id})"><i class="bi bi-x-circle"></i></button>
             </li>`).join('') || '<li class="list-group-item small text-muted">No hay ubicaciones</li>';
+        
+        // Sincronizar el select del formulario de equipos
+        document.getElementById('ubicacion').innerHTML = listaLabs.map(l => `<option value="${l.nombre}">${l.nombre}</option>`).join('');
     }
 
     // --- AUTENTICACIÓN Y PERMISOS ---
@@ -208,7 +236,7 @@
             const [resE, resL] = await Promise.all([fetch(`${URL_API}/equipos`), fetch(`${URL_API}/laboratorios`)]);
             listaEquipos = await resE.json(); 
             listaLabs = await resL.json();
-            document.getElementById('ubicacion').innerHTML = listaLabs.map(l => `<option value="${l.nombre}">${l.nombre}</option>`).join('');
+            actualizarListaGestionLabs();
             aplicarPermisos();
         } catch (e) { console.error(e); }
     }
