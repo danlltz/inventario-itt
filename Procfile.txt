@@ -1,1 +1,1 @@
-web: gunicorn inventario.2:app
+web: gunicorn inventario_web:app
