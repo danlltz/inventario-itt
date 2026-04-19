@@ -285,22 +285,43 @@
         new bootstrap.Modal(document.getElementById('modalEquipo')).show();
     }
 
-    document.getElementById('form-equipo').addEventListener('submit', async (ev) => {
-        ev.preventDefault();
-        const id = document.getElementById('id-equipo').value;
-        const d = { 
-            nombre: document.getElementById('nombre').value, 
-            descripcion: document.getElementById('descripcion').value, 
-            operativos: parseInt(document.getElementById('operativos').value), 
-            cantidad: parseInt(document.getElementById('cantidad').value), 
-            ubicacion: document.getElementById('ubicacion').value, 
-            tipo: document.getElementById('tipo').value, 
-            estado: document.getElementById('estado').value 
-        };
-        await fetch(id ? `${URL_API}/editar/${id}` : `${URL_API}/agregar`, { method: id ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(d) });
-        bootstrap.Modal.getInstance(document.getElementById('modalEquipo')).hide(); cargarDatos();
-    });
+// Busca esta línea en tu código actual:
+document.getElementById('form-equipo').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    
+    // REEMPLAZA TODO LO QUE ESTÁ AQUÍ ADENTRO POR ESTO:
+    const id = document.getElementById('id-equipo').value;
+    const cant = parseInt(document.getElementById('cantidad').value);
+    const oper = parseInt(document.getElementById('operativos').value);
 
+    if (cant < 0 || oper < 0) {
+        Swal.fire({ icon: 'error', title: 'Valor Inválido', text: 'No se permiten negativos.' });
+        return;
+    }
+    if (oper > cant) {
+        Swal.fire({ icon: 'warning', title: 'Error de Lógica', text: 'Funcionando no puede ser mayor al Total.' });
+        return;
+    }
+
+    const d = { 
+        nombre: document.getElementById('nombre').value, 
+        descripcion: document.getElementById('descripcion').value, 
+        operativos: oper, 
+        cantidad: cant, 
+        ubicacion: document.getElementById('ubicacion').value, 
+        tipo: document.getElementById('tipo').value, 
+        estado: document.getElementById('estado').value 
+    };
+
+    await fetch(id ? `${URL_API}/editar/${id}` : `${URL_API}/agregar`, { 
+        method: id ? 'PUT' : 'POST', 
+        headers: {'Content-Type':'application/json'}, 
+        body: JSON.stringify(d) 
+    });
+    
+    bootstrap.Modal.getInstance(document.getElementById('modalEquipo')).hide(); 
+    cargarDatos();
+});
     function cambiarPestaña(t) { 
         pestañaActual = t; 
         document.querySelectorAll('.nav-link-itt').forEach(l => l.classList.remove('active')); 
