@@ -6,16 +6,15 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
     <style>
         :root { --azul-itt: #1b396a; --rojo-itt: #dc3545; --naranja-itt: #fd7e14; }
+        body { background-color: #f8f9fa; }
         .navbar-itt { background-color: var(--azul-itt); color: white; padding: 10px 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .header-container { display: flex; align-items: center; justify-content: space-between; }
         .header-search { position: relative; width: 35%; }
         .header-search input { background-color: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; color: white; padding: 8px 15px 8px 40px; width: 100%; transition: 0.3s; }
         .header-search input:focus { background-color: white; color: var(--azul-itt); outline: none; }
         .header-search i { position: absolute; left: 12px; top: 10px; color: rgba(255,255,255,0.6); }
-        body { background-color: #f8f9fa; }
         .nav-tabs-itt { background-color: #f1f5f9; padding: 0 20px; border-bottom: 1px solid #dee2e6; display: flex; gap: 20px; }
         .nav-link-itt { padding: 15px 10px; color: #64748b; text-decoration: none; font-weight: 500; cursor: pointer; }
         .nav-link-itt.active { color: var(--azul-itt); border-bottom: 3px solid var(--azul-itt); }
@@ -29,14 +28,16 @@
         .modal-header-itt { background-color: var(--azul-itt); color: white; }
     </style>
 </head>
-<body class="admin-activo"> <div class="navbar-itt">
+<body>
+
+<div class="navbar-itt">
     <div class="header-container">
         <div>
             <h4 class="mb-0 fw-bold">Inventario de Laboratorio</h4>
-            <p class="mb-0 small opacity-75">Tecnológico Nacional de México | Tijuana</p>
+            <p class="mb-0 small opacity-75">TecNM | Tijuana</p>
         </div>
         <div class="header-search">
-            <input type="text" id="inputBuscador" placeholder="Buscar artículo..." onkeyup="filtrarPorNombre()">
+            <input type="text" id="inputBuscador" placeholder="Buscar..." onkeyup="filtrarPorNombre()">
             <i class="bi bi-search"></i>
         </div>
         <div class="text-end">
@@ -59,7 +60,7 @@
                 <i class="bi bi-geo-alt"></i> Ubicaciones
             </button>
             <button class="btn btn-primary px-4 solo-admin" style="background-color: var(--azul-itt); border: none;" onclick="prepararFormulario()" data-bs-toggle="modal" data-bs-target="#modalEquipo">
-                + Agregar artículo
+                + Agregar
             </button>
         </div>
     </div>
@@ -84,10 +85,10 @@
                 <div class="modal-body">
                     <input type="hidden" id="id-equipo">
                     <div class="mb-3"><label class="form-label fw-bold">Nombre</label><input type="text" id="nombre" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label fw-bold">Descripción</label><textarea id="descripcion" class="form-control" rows="3"></textarea></div>
+                    <div class="mb-3"><label class="form-label fw-bold">Descripción</label><textarea id="descripcion" class="form-control"></textarea></div>
                     <div class="row">
                         <div class="col-6 mb-3"><label class="form-label fw-bold">Total</label><input type="number" id="cantidad" class="form-control" min="0" required></div>
-                        <div class="col-6 mb-3"><label class="form-label fw-bold text-success">Funcionando</label><input type="number" id="operativos" class="form-control" min="0" required></div>
+                        <div class="col-6 mb-3"><label class="form-label fw-bold">Funcionando</label><input type="number" id="operativos" class="form-control" min="0" required></div>
                     </div>
                     <div class="row">
                         <div class="col-6 mb-3"><label class="form-label fw-bold">Ubicación</label><select id="ubicacion" class="form-select"></select></div>
@@ -104,13 +105,10 @@
 <div class="modal fade" id="modalLabs" tabindex="-1">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
-            <div class="modal-header modal-header-itt">
-                <h5 class="modal-title fw-bold">Ubicaciones</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
+            <div class="modal-header modal-header-itt"><h5 class="modal-title fw-bold">Ubicaciones</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
                 <div class="input-group mb-3">
-                    <input type="text" id="nuevoLabNombre" class="form-control" placeholder="Nombre lab...">
+                    <input type="text" id="nuevoLabNombre" class="form-control" placeholder="Nuevo...">
                     <button class="btn btn-success" onclick="agregarLab()"><i class="bi bi-plus"></i></button>
                 </div>
                 <ul class="list-group list-group-flush" id="lista-labs-gestion"></ul>
@@ -121,9 +119,9 @@
 
 <div class="modal fade" id="modalVerDescripcion" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg">
+        <div class="modal-content">
             <div class="modal-header modal-header-itt"><h5 class="modal-title fw-bold" id="descTitulo"></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body p-4"><div id="descTexto" style="color:#000; white-space: pre-wrap;"></div></div>
+            <div class="modal-body"><div id="descTexto" style="white-space: pre-wrap;"></div></div>
         </div>
     </div>
 </div>
@@ -133,7 +131,7 @@
     const URL_API = 'https://inventario-laboratorio-itt.onrender.com';
     let listaEquipos = [], listaLabs = [], pestañaActual = 'Equipo', esAdmin = false;
 
-    // Sincronizar cantidades
+    // Sincronización
     document.getElementById('cantidad').addEventListener('input', function() { 
         document.getElementById('operativos').value = this.value; 
     });
@@ -145,47 +143,40 @@
             listaLabs = await resL.json();
             document.getElementById('ubicacion').innerHTML = listaLabs.map(l => `<option value="${l.nombre}">${l.nombre}</option>`).join('');
             aplicarPermisos();
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Error cargando datos:", e); }
     }
 
-    // FUNCIONES DE UBICACIONES CORREGIDAS
-    function abrirGestionLabs() {
-        actualizarListaGestionLabs();
-        new bootstrap.Modal(document.getElementById('modalLabs')).show();
-    }
+    // GESTIÓN DE UBICACIONES CON CONFIRMACIÓN
+    function abrirGestionLabs() { actualizarListaGestionLabs(); new bootstrap.Modal(document.getElementById('modalLabs')).show(); }
 
     function actualizarListaGestionLabs() {
         document.getElementById('lista-labs-gestion').innerHTML = listaLabs.map(l => `
             <li class="list-group-item d-flex justify-content-between align-items-center">
-                ${l.nombre} 
-                <button class="btn btn-sm text-danger" onclick="eliminarLab(${l.id})">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </li>`).join('') || '<li class="list-group-item small text-muted">No hay ubicaciones</li>';
+                ${l.nombre} <button class="btn btn-sm text-danger" onclick="eliminarLab(${l.id})"><i class="bi bi-trash"></i></button>
+            </li>`).join('') || '<li class="list-group-item small text-muted">Vacío</li>';
     }
 
     async function agregarLab() {
         const nombre = document.getElementById('nuevoLabNombre').value;
         if (!nombre) return;
-        await fetch(`${URL_API}/laboratorios`, { 
-            method: 'POST', 
-            headers: {'Content-Type':'application/json'}, 
-            body: JSON.stringify({nombre}) 
-        });
+        await fetch(`${URL_API}/laboratorios`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({nombre}) });
         document.getElementById('nuevoLabNombre').value = '';
-        await cargarDatos();
-        actualizarListaGestionLabs();
+        await cargarDatos(); actualizarListaGestionLabs();
     }
 
     async function eliminarLab(id) {
-        if (confirm("¿Eliminar esta ubicación?")) {
+        const confirmacion = await Swal.fire({
+            title: '¿Seguro?', text: "Se borrará la ubicación.", icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#dc3545', confirmButtonText: 'Sí, borrar'
+        });
+        if (confirmacion.isConfirmed) {
             await fetch(`${URL_API}/laboratorios/${id}`, { method: 'DELETE' });
-            await cargarDatos();
-            actualizarListaGestionLabs();
+            await cargarDatos(); actualizarListaGestionLabs();
+            Swal.fire('Eliminado', '', 'success');
         }
     }
 
-    // GUARDAR EQUIPO (CON TU LÓGICA DE VALIDACIÓN)
+    // GUARDAR EQUIPO (REPARADO)
     document.getElementById('form-equipo').addEventListener('submit', async (ev) => {
         ev.preventDefault();
         const id = document.getElementById('id-equipo').value;
@@ -193,7 +184,7 @@
         const oper = parseInt(document.getElementById('operativos').value) || 0;
 
         if (cant < 0 || oper < 0) return Swal.fire('Error', 'No negativos', 'error');
-        if (oper > cant) return Swal.fire('Aviso', 'Funcionando no puede ser mayor al total', 'warning');
+        if (oper > cant) return Swal.fire('Error', 'Funcionando no puede superar al total', 'warning');
 
         const d = { 
             nombre: document.getElementById('nombre').value, 
@@ -203,20 +194,20 @@
             tipo: document.getElementById('tipo').value, estado: document.getElementById('estado').value 
         };
 
-        const res = await fetch(id ? `${URL_API}/editar/${id}` : `${URL_API}/agregar`, {
-            method: id ? 'PUT' : 'POST',
-            headers: {'Content-Type':'application/json'},
-            body: JSON.stringify(d)
-        });
-
-        if (res.ok) {
-            Swal.fire({icon:'success', title:'Guardado', timer:1000, showConfirmButton:false});
-            bootstrap.Modal.getInstance(document.getElementById('modalEquipo')).hide(); 
-            cargarDatos();
-        }
+        try {
+            const res = await fetch(id ? `${URL_API}/editar/${id}` : `${URL_API}/agregar`, {
+                method: id ? 'PUT' : 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify(d)
+            });
+            if (res.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('modalEquipo')).hide();
+                await cargarDatos();
+                Swal.fire({icon:'success', title:'Guardado', timer:1000, showConfirmButton:false});
+            }
+        } catch (e) { Swal.fire('Error', 'Sin conexión con el servidor', 'error'); }
     });
 
-    // RESTO DE FUNCIONES
     function renderizarTabla(datos) {
         document.getElementById('contenido-tabla').innerHTML = datos.map(item => {
             const cant = (parseInt(item.operativos) === parseInt(item.cantidad)) ? item.cantidad : `${item.operativos}/${item.cantidad}`;
@@ -226,24 +217,21 @@
         }).join('');
     }
 
+    async function eliminarEq(id) { if ((await Swal.fire({title:'¿Borrar?', showCancelButton:true})).isConfirmed) { await fetch(`${URL_API}/eliminar/${id}`, {method:'DELETE'}); cargarDatos(); } }
     function aplicarPermisos() {
-        const token = localStorage.getItem("itt_token");
-        esAdmin = (token === "active");
+        esAdmin = localStorage.getItem("itt_token") === "active";
         document.body.classList.toggle('admin-activo', esAdmin);
+        document.getElementById('info-usuario').innerText = esAdmin ? "Sesión: Admin" : "Modo: Invitado";
+        document.getElementById('btn-auth').innerText = esAdmin ? "Salir" : "Entrar";
         renderizarTabla(listaEquipos.filter(e => e.tipo === pestañaActual));
     }
 
     async function manejarAuth() {
         if (!esAdmin) {
             const { value: pass } = await Swal.fire({ title: 'Contraseña Admin', input: 'password' });
-            if (pass === "123") { // Cambia esto por tu lógica
-                localStorage.setItem("itt_token", "active");
-                aplicarPermisos();
-            }
-        } else {
-            localStorage.clear();
-            aplicarPermisos();
-        }
+            if (pass === "123") { localStorage.setItem("itt_token", "active"); aplicarPermisos(); }
+            else if(pass) { Swal.fire('Error', 'Incorrecta', 'error'); }
+        } else { localStorage.clear(); aplicarPermisos(); }
     }
 
     function llenarForm(id) {
@@ -259,15 +247,10 @@
         new bootstrap.Modal(document.getElementById('modalEquipo')).show();
     }
 
-    async function eliminarEq(id) { if (confirm("¿Borrar?")) { await fetch(`${URL_API}/eliminar/${id}`, {method:'DELETE'}); cargarDatos(); } }
     function prepararFormulario() { document.getElementById('id-equipo').value = ''; document.getElementById('form-equipo').reset(); }
     function cambiarPestaña(t) { pestañaActual = t; aplicarPermisos(); }
-    function verDesc(id) { 
-        const e = listaEquipos.find(i => i.id === id); 
-        document.getElementById('descTitulo').innerText = e.nombre; 
-        document.getElementById('descTexto').innerText = e.descripcion || "Sin descripción."; 
-        new bootstrap.Modal(document.getElementById('modalVerDescripcion')).show(); 
-    }
+    function filtrarPorNombre() { const txt = document.getElementById('inputBuscador').value.toLowerCase(); renderizarTabla(listaEquipos.filter(e => e.tipo === pestañaActual && e.nombre.toLowerCase().includes(txt))); }
+    function verDesc(id) { const e = listaEquipos.find(i => i.id === id); document.getElementById('descTitulo').innerText = e.nombre; document.getElementById('descTexto').innerText = e.descripcion || "Sin descripción."; new bootstrap.Modal(document.getElementById('modalVerDescripcion')).show(); }
 
     cargarDatos();
 </script>
