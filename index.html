@@ -11,42 +11,26 @@
     <style>
         :root { --azul-itt: #1b396a; --rojo-itt: #dc3545; --naranja-itt: #fd7e14; }
         body { background-color: #f8f9fa; }
-        
         .navbar-itt { background-color: var(--azul-itt); color: white; padding: 15px 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .header-container { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
         .header-brand { flex: 1; min-width: 200px; }
-
         .header-search { position: relative; width: 35%; min-width: 250px; }
         .header-search input { background-color: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; color: white; padding: 8px 15px 8px 40px; width: 100%; transition: 0.3s; }
         .header-search input:focus { background-color: white; color: var(--azul-itt); outline: none; }
         .header-search i { position: absolute; left: 12px; top: 10px; color: rgba(255,255,255,0.6); }
-
         .user-access { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
-
         .nav-tabs-itt { background-color: #f1f5f9; padding: 0 20px; border-bottom: 1px solid #dee2e6; display: flex; gap: 20px; overflow-x: auto; }
         .nav-link-itt { padding: 15px 10px; color: #64748b; text-decoration: none; font-weight: 500; cursor: pointer; white-space: nowrap; }
         .nav-link-itt.active { color: var(--azul-itt); border-bottom: 3px solid var(--azul-itt); }
-
         .contenedor-inventario { background: white; border-radius: 12px; padding: 20px; margin-top: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow-x: auto; }
-        
         .solo-admin { display: none !important; }
         .admin-activo .solo-admin { display: inline-block !important; }
-        
         .status-funcionando { color: #198754; font-weight: bold; background-color: #e8f5e9; padding: 4px 8px; border-radius: 4px; }
         .status-mantenimiento { color: var(--naranja-itt); font-weight: bold; background-color: #fff3e6; padding: 4px 8px; border-radius: 4px; }
         .status-inactiva { color: var(--rojo-itt); font-weight: bold; background-color: #f8d7da; padding: 4px 8px; border-radius: 4px; }
-
         .nombre-equipo { color: var(--azul-itt); text-decoration: none; cursor: pointer; font-weight: bold; }
         .nombre-equipo:hover { text-decoration: underline; }
         .modal-header-itt { background-color: var(--azul-itt); color: white; }
-
-        @media (max-width: 768px) {
-            .header-search { width: 100%; order: 3; margin-top: 10px; min-width: 100%; }
-            .header-brand { order: 1; }
-            .user-access { order: 2; }
-            .contenedor-inventario { padding: 10px; margin: 15px 10px; }
-            .table { font-size: 14px; min-width: 550px; }
-        }
     </style>
 </head>
 <body>
@@ -112,8 +96,8 @@
                     <div class="mb-3"><label class="form-label fw-bold">Nombre</label><input type="text" id="nombre" class="form-control" required></div>
                     <div class="mb-3"><label class="form-label fw-bold">Descripción</label><textarea id="descripcion" class="form-control" rows="3"></textarea></div>
                     <div class="row">
-                        <div class="col-6 mb-3"><label class="form-label fw-bold">Total</label><input type="number" id="cantidad" class="form-control" value="1" required></div>
-                        <div class="col-6 mb-3"><label class="form-label fw-bold text-success">Funcionando</label><input type="number" id="operativos" class="form-control" value="1" required></div>
+                        <div class="col-6 mb-3"><label class="form-label fw-bold">Total</label><input type="number" id="cantidad" class="form-control" min="0" required></div>
+                        <div class="col-6 mb-3"><label class="form-label fw-bold text-success">Funcionando</label><input type="number" id="operativos" class="form-control" min="0" required></div>
                     </div>
                     <div class="row">
                         <div class="col-6 mb-3"><label class="form-label fw-bold">Ubicación</label><select id="ubicacion" class="form-select"></select></div>
@@ -141,7 +125,6 @@
                 </div>
                 <ul class="list-group list-group-flush" id="lista-labs-gestion"></ul>
             </div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary btn-sm w-100" data-bs-dismiss="modal">Cerrar</button></div>
         </div>
     </div>
 </div>
@@ -151,7 +134,6 @@
         <div class="modal-content shadow-lg">
             <div class="modal-header modal-header-itt"><h5 class="modal-title fw-bold" id="descTitulo"></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
             <div class="modal-body p-4"><div id="descTexto" style="color:#000; white-space: pre-wrap;"></div></div>
-            <div class="modal-footer"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button></div>
         </div>
     </div>
 </div>
@@ -161,89 +143,10 @@
     const URL_API = 'https://inventario-laboratorio-itt.onrender.com';
     let listaEquipos = [], listaLabs = [], pestañaActual = 'Equipo', esAdmin = false;
 
+    // Sincronización inteligente
     document.getElementById('cantidad').addEventListener('input', function() { 
         document.getElementById('operativos').value = this.value; 
     });
-
-    async function agregarLab() {
-        const nombre = document.getElementById('nuevoLabNombre').value;
-        if (!nombre) return;
-        await fetch(`${URL_API}/laboratorios`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({nombre}) });
-        document.getElementById('nuevoLabNombre').value = '';
-        await cargarDatos();
-        actualizarListaGestionLabs();
-    }
-
-    // --- FUNCIÓN ACTUALIZADA CON PREGUNTA DE SEGURIDAD ---
-    async function eliminarLab(id) {
-        const resultado = await Swal.fire({
-            title: '¿Estás seguro?',
-            text: "Se eliminará esta ubicación permanentemente.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        });
-
-        if (resultado.isConfirmed) {
-            const res = await fetch(`${URL_API}/laboratorios/${id}`, { method: 'DELETE' });
-            if (res.ok) { 
-                await cargarDatos(); 
-                actualizarListaGestionLabs(); 
-                Swal.fire('Eliminado', 'La ubicación ha sido borrada.', 'success');
-            }
-        }
-    }
-
-    function abrirGestionLabs() { actualizarListaGestionLabs(); new bootstrap.Modal(document.getElementById('modalLabs')).show(); }
-
-    function actualizarListaGestionLabs() {
-        document.getElementById('lista-labs-gestion').innerHTML = listaLabs.map(l => `
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                ${l.nombre} <button class="btn btn-sm text-danger" onclick="eliminarLab(${l.id})"><i class="bi bi-x-circle"></i></button>
-            </li>`).join('') || '<li class="list-group-item small text-muted">No hay ubicaciones</li>';
-    }
-
-    async function manejarAuth() {
-        if (!esAdmin) {
-            const { value: user } = await Swal.fire({ title: 'Usuario ITT', input: 'text', confirmButtonColor: '#1b396a', showCancelButton: true });
-            if (!user) return;
-            const { value: pass } = await Swal.fire({ title: 'Contraseña', input: 'password', confirmButtonColor: '#1b396a', showCancelButton: true });
-            if (pass) {
-                const res = await fetch(`${URL_API}/login`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({user, pass}) });
-                if (res.ok) { 
-                    esAdmin = true; localStorage.setItem("itt_user", user); localStorage.setItem("itt_token", "active"); aplicarPermisos(); 
-                } else { Swal.fire({ icon: 'error', title: 'Error', text: 'Credenciales inválidas' }); }
-            }
-        } else {
-            const res = await Swal.fire({ title: '¿Cerrar sesión?', showCancelButton: true, confirmButtonColor: '#dc3545' });
-            if (res.isConfirmed) { esAdmin = false; localStorage.clear(); aplicarPermisos(); }
-        }
-    }
-
-    async function cambiarPassword() {
-        const user = localStorage.getItem("itt_user");
-        const { value: old_pass } = await Swal.fire({ title: 'Clave Actual', input: 'password', confirmButtonColor: '#1b396a', showCancelButton: true });
-        if (!old_pass) return;
-        const { value: new_pass } = await Swal.fire({ title: 'Nueva Clave', input: 'password', confirmButtonColor: '#1b396a', showCancelButton: true });
-        if (new_pass) {
-            const res = await fetch(`${URL_API}/cambiar-password`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user, old_pass, new_pass }) });
-            if (res.ok) { Swal.fire('Éxito', 'Clave actualizada', 'success'); }
-            else { Swal.fire('Error', 'La clave actual no es correcta', 'error'); }
-        }
-    }
-
-    function aplicarPermisos() {
-        const token = localStorage.getItem("itt_token");
-        const user = localStorage.getItem("itt_user");
-        esAdmin = (token === "active" && user);
-        document.body.classList.toggle('admin-activo', esAdmin);
-        document.getElementById('info-usuario').innerText = esAdmin ? "Sesión: " + user : "Modo: Invitado";
-        document.getElementById('btn-auth').innerText = esAdmin ? "Salir" : "Entrar";
-        renderizarTabla(listaEquipos.filter(e => e.tipo === pestañaActual));
-    }
 
     async function cargarDatos() {
         try {
@@ -255,6 +158,59 @@
         } catch (e) { console.error(e); }
     }
 
+    // --- EL BOTÓN QUE NO AGARRABA (CORREGIDO) ---
+    document.getElementById('form-equipo').addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        
+        const id = document.getElementById('id-equipo').value;
+        const cant = parseInt(document.getElementById('cantidad').value) || 0;
+        const oper = parseInt(document.getElementById('operativos').value) || 0;
+
+        // Validaciones solicitadas
+        if (cant < 0 || oper < 0) {
+            Swal.fire('Error', 'No se permiten cantidades negativas', 'error');
+            return;
+        }
+        if (oper > cant) {
+            Swal.fire('Error', 'Los operativos no pueden ser mayores al total', 'warning');
+            return;
+        }
+
+        const datos = {
+            nombre: document.getElementById('nombre').value,
+            descripcion: document.getElementById('descripcion').value,
+            operativos: oper,
+            cantidad: cant,
+            ubicacion: document.getElementById('ubicacion').value,
+            tipo: document.getElementById('tipo').value,
+            estado: document.getElementById('estado').value
+        };
+
+        // Si hay ID editamos, si no agregamos
+        const endpoint = id ? `${URL_API}/editar/${id}` : `${URL_API}/agregar`;
+        const metodo = id ? 'PUT' : 'POST';
+
+        try {
+            const respuesta = await fetch(endpoint, {
+                method: metodo,
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(datos)
+            });
+
+            if (respuesta.ok) {
+                Swal.fire({ icon: 'success', title: 'Guardado', showConfirmButton: false, timer: 1500 });
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalEquipo'));
+                modal.hide();
+                await cargarDatos();
+            } else {
+                Swal.fire('Error', 'El servidor rechazó el cambio', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'No se pudo conectar con el servidor', 'error');
+        }
+    });
+
+    // Funciones de apoyo
     function renderizarTabla(datos) {
         document.getElementById('contenido-tabla').innerHTML = datos.map(item => {
             const cant = (parseInt(item.operativos) === parseInt(item.cantidad)) ? item.cantidad : `${item.operativos}/${item.cantidad}`;
@@ -262,14 +218,6 @@
             return `<tr><td><a class="nombre-equipo" onclick="verDesc(${item.id})">${item.nombre}</a></td><td>${cant}</td><td>${item.ubicacion}</td><td><span class="${cls}">${item.estado}</span></td>
             <td class="text-end">${esAdmin ? `<button class="btn btn-sm text-primary" onclick="llenarForm(${item.id})"><i class="bi bi-pencil"></i></button><button class="btn btn-sm text-danger" onclick="eliminarEq(${item.id})"><i class="bi bi-trash"></i></button>` : '<i class="bi bi-lock"></i>'}</td></tr>`;
         }).join('');
-    }
-
-    async function eliminarEq(id) { if ((await Swal.fire({title:'¿Borrar artículo?', showCancelButton:true, confirmButtonColor: '#dc3545'})).isConfirmed) { await fetch(`${URL_API}/eliminar/${id}`, {method:'DELETE'}); cargarDatos(); } }
-    
-    function prepararFormulario() { 
-        document.getElementById('id-equipo').value = ''; 
-        document.getElementById('form-equipo').reset(); 
-        document.getElementById('tipo').value = pestañaActual; 
     }
 
     function llenarForm(id) {
@@ -285,63 +233,36 @@
         new bootstrap.Modal(document.getElementById('modalEquipo')).show();
     }
 
-// Busca esta línea en tu código actual:
-document.getElementById('form-equipo').addEventListener('submit', async (ev) => {
-    ev.preventDefault();
+    function aplicarPermisos() {
+        const token = localStorage.getItem("itt_token");
+        const user = localStorage.getItem("itt_user");
+        esAdmin = (token === "active" && user);
+        document.body.classList.toggle('admin-activo', esAdmin);
+        document.getElementById('info-usuario').innerText = esAdmin ? "Sesión: " + user : "Modo: Invitado";
+        document.getElementById('btn-auth').innerText = esAdmin ? "Salir" : "Entrar";
+        renderizarTabla(listaEquipos.filter(e => e.tipo === pestañaActual));
+    }
+
+    async function manejarAuth() {
+        if (!esAdmin) {
+            const { value: user } = await Swal.fire({ title: 'Usuario ITT', input: 'text', confirmButtonColor: '#1b396a' });
+            const { value: pass } = await Swal.fire({ title: 'Contraseña', input: 'password', confirmButtonColor: '#1b396a' });
+            if (user && pass) {
+                const res = await fetch(`${URL_API}/login`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({user, pass}) });
+                if (res.ok) { esAdmin = true; localStorage.setItem("itt_user", user); localStorage.setItem("itt_token", "active"); aplicarPermisos(); }
+                else { Swal.fire('Error', 'Credenciales incorrectas', 'error'); }
+            }
+        } else {
+            localStorage.clear(); esAdmin = false; aplicarPermisos();
+        }
+    }
+
+    async function eliminarEq(id) { if ((await Swal.fire({title:'¿Borrar?', showCancelButton:true})).isConfirmed) { await fetch(`${URL_API}/eliminar/${id}`, {method:'DELETE'}); cargarDatos(); } }
+    function prepararFormulario() { document.getElementById('id-equipo').value = ''; document.getElementById('form-equipo').reset(); document.getElementById('tipo').value = pestañaActual; }
+    function cambiarPestaña(t) { pestañaActual = t; document.querySelectorAll('.nav-link-itt').forEach(l => l.classList.remove('active')); document.getElementById('tab-'+t).classList.add('active'); document.getElementById('titulo-seccion').innerText = t; renderizarTabla(listaEquipos.filter(e => e.tipo === t)); }
+    function filtrarPorNombre() { const txt = document.getElementById('inputBuscador').value.toLowerCase(); renderizarTabla(listaEquipos.filter(e => e.tipo === pestañaActual && e.nombre.toLowerCase().includes(txt))); }
+    function verDesc(id) { const e = listaEquipos.find(i => i.id === id); document.getElementById('descTitulo').innerText = e.nombre; document.getElementById('descTexto').innerText = e.descripcion || "Sin descripción."; new bootstrap.Modal(document.getElementById('modalVerDescripcion')).show(); }
     
-    // REEMPLAZA TODO LO QUE ESTÁ AQUÍ ADENTRO POR ESTO:
-    const id = document.getElementById('id-equipo').value;
-    const cant = parseInt(document.getElementById('cantidad').value);
-    const oper = parseInt(document.getElementById('operativos').value);
-
-    if (cant < 0 || oper < 0) {
-        Swal.fire({ icon: 'error', title: 'Valor Inválido', text: 'No se permiten negativos.' });
-        return;
-    }
-    if (oper > cant) {
-        Swal.fire({ icon: 'warning', title: 'Error de Lógica', text: 'Funcionando no puede ser mayor al Total.' });
-        return;
-    }
-
-    const d = { 
-        nombre: document.getElementById('nombre').value, 
-        descripcion: document.getElementById('descripcion').value, 
-        operativos: oper, 
-        cantidad: cant, 
-        ubicacion: document.getElementById('ubicacion').value, 
-        tipo: document.getElementById('tipo').value, 
-        estado: document.getElementById('estado').value 
-    };
-
-    await fetch(id ? `${URL_API}/editar/${id}` : `${URL_API}/agregar`, { 
-        method: id ? 'PUT' : 'POST', 
-        headers: {'Content-Type':'application/json'}, 
-        body: JSON.stringify(d) 
-    });
-    
-    bootstrap.Modal.getInstance(document.getElementById('modalEquipo')).hide(); 
-    cargarDatos();
-});
-    function cambiarPestaña(t) { 
-        pestañaActual = t; 
-        document.querySelectorAll('.nav-link-itt').forEach(l => l.classList.remove('active')); 
-        document.getElementById('tab-'+t).classList.add('active'); 
-        document.getElementById('titulo-seccion').innerText = t; 
-        renderizarTabla(listaEquipos.filter(e => e.tipo === t)); 
-    }
-
-    function filtrarPorNombre() { 
-        const txt = document.getElementById('inputBuscador').value.toLowerCase(); 
-        renderizarTabla(listaEquipos.filter(e => e.tipo === pestañaActual && e.nombre.toLowerCase().includes(txt))); 
-    }
-
-    function verDesc(id) { 
-        const e = listaEquipos.find(i => i.id === id); 
-        document.getElementById('descTitulo').innerText = e.nombre; 
-        document.getElementById('descTexto').innerText = e.descripcion || "Sin descripción."; 
-        new bootstrap.Modal(document.getElementById('modalVerDescripcion')).show(); 
-    }
-
     cargarDatos();
 </script>
 </body>
