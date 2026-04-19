@@ -131,20 +131,25 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const URL_API = ' https://inventario-laboratorio-itt.onrender.com';
+    const URL_API = 'https://inventario-laboratorio-itt.onrender.com';
     let listaEquipos = [], listaLabs = [], pestañaActual = 'Equipo', esAdmin = false;
 
-    // --- VALIDACIÓN DE CANTIDADES ---
+    // --- VALIDACIÓN DE CANTIDADES (CON SEGUIMIENTO AUTOMÁTICO) ---
     document.getElementById('cantidad').addEventListener('input', function() { 
         if (this.value < 0) this.value = 0;
-        if (parseInt(document.getElementById('operativos').value) > parseInt(this.value)) {
-            document.getElementById('operativos').value = this.value;
-        }
+        
+        // El valor de funcionando sigue al total automáticamente
+        document.getElementById('operativos').value = this.value;
+        
+        // Actualizamos el tope máximo para el input de operativos
+        document.getElementById('operativos').setAttribute('max', this.value);
     });
 
     document.getElementById('operativos').addEventListener('input', function() {
         if (this.value < 0) this.value = 0;
         const total = parseInt(document.getElementById('cantidad').value) || 0;
+        
+        // Evitamos que el usuario suba manualmente funcionando por encima del total
         if (parseInt(this.value) > total) {
             this.value = total;
         }
@@ -187,7 +192,6 @@
                 ${l.nombre} <button class="btn btn-sm text-danger" onclick="eliminarLab(${l.id})"><i class="bi bi-x-circle"></i></button>
             </li>`).join('') || '<li class="list-group-item small text-muted">No hay ubicaciones</li>';
         
-        // Sincronizar el select del formulario de equipos
         document.getElementById('ubicacion').innerHTML = listaLabs.map(l => `<option value="${l.nombre}">${l.nombre}</option>`).join('');
     }
 
