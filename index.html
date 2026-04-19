@@ -14,10 +14,7 @@
         
         /* NAVBAR RESPONSIVA */
         .navbar-itt { background-color: var(--azul-itt); color: white; padding: 15px 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        
         .header-container { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-        
-        /* Contenedor del Título */
         .header-brand { flex: 1; min-width: 200px; }
 
         /* BUSCADOR */
@@ -26,7 +23,7 @@
         .header-search input:focus { background-color: white; color: var(--azul-itt); outline: none; }
         .header-search i { position: absolute; left: 12px; top: 10px; color: rgba(255,255,255,0.6); }
 
-        /* ACCESO (Movido a la derecha) */
+        /* ACCESO */
         .user-access { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
 
         /* TABS */
@@ -34,7 +31,7 @@
         .nav-link-itt { padding: 15px 10px; color: #64748b; text-decoration: none; font-weight: 500; cursor: pointer; white-space: nowrap; }
         .nav-link-itt.active { color: var(--azul-itt); border-bottom: 3px solid var(--azul-itt); }
 
-        /* CUADRO BLANCO (Ajustado para móvil) */
+        /* CUADRO BLANCO */
         .contenedor-inventario { background: white; border-radius: 12px; padding: 20px; margin-top: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow-x: auto; }
         
         .solo-admin { display: none !important; }
@@ -49,13 +46,12 @@
         .nombre-equipo:hover { text-decoration: underline; }
         .modal-header-itt { background-color: var(--azul-itt); color: white; }
 
-        /* AJUSTES ESPECÍFICOS PARA MÓVIL */
         @media (max-width: 768px) {
             .header-search { width: 100%; order: 3; margin-top: 10px; min-width: 100%; }
             .header-brand { order: 1; }
             .user-access { order: 2; }
             .contenedor-inventario { padding: 10px; margin: 15px 10px; }
-            .table { font-size: 14px; min-width: 550px; } /* Mantiene la tabla legible */
+            .table { font-size: 14px; min-width: 550px; }
         }
     </style>
 </head>
@@ -67,12 +63,10 @@
             <h4 class="mb-0 fw-bold">Inventario de Laboratorio</h4>
             <p class="mb-0 small opacity-75">Tecnológico Nacional de México | Tijuana</p>
         </div>
-        
         <div class="header-search">
             <input type="text" id="inputBuscador" placeholder="Buscar artículo..." onkeyup="filtrarPorNombre()">
             <i class="bi bi-search"></i>
         </div>
-
         <div class="user-access">
             <div id="info-usuario" class="small opacity-75 mb-1" style="font-size: 0.7rem;">Modo: Invitado</div>
             <div class="d-flex">
@@ -115,7 +109,10 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="form-equipo">
-                <div class="modal-header modal-header-itt"><h5 class="modal-title fw-bold">Detalle del Artículo</h5></div>
+                <div class="modal-header modal-header-itt">
+                    <h5 class="modal-title fw-bold">Detalle del Artículo</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
                 <div class="modal-body">
                     <input type="hidden" id="id-equipo">
                     <div class="mb-3"><label class="form-label fw-bold">Nombre</label><input type="text" id="nombre" class="form-control" required></div>
@@ -130,7 +127,10 @@
                     </div>
                     <div class="mb-3"><label class="form-label fw-bold">Estado</label><select id="estado" class="form-select"><option value="Funcionando">Funcionando</option><option value="Mantenimiento">Mantenimiento</option><option value="Inactiva">Inactiva</option></select></div>
                 </div>
-                <div class="modal-footer"><button type="submit" class="btn btn-primary w-100" style="background-color: var(--azul-itt);">Guardar Cambios</button></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary flex-grow-1" style="background-color: var(--azul-itt);">Guardar Cambios</button>
+                </div>
             </form>
         </div>
     </div>
@@ -139,13 +139,19 @@
 <div class="modal fade" id="modalLabs" tabindex="-1">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
-            <div class="modal-header modal-header-itt"><h5 class="modal-title fw-bold">Ubicaciones</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header modal-header-itt">
+                <h5 class="modal-title fw-bold">Ubicaciones</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
             <div class="modal-body">
                 <div class="input-group mb-3">
                     <input type="text" id="nuevoLabNombre" class="form-control" placeholder="Nombre">
                     <button class="btn btn-success" onclick="agregarLab()"><i class="bi bi-plus"></i></button>
                 </div>
                 <ul class="list-group list-group-flush" id="lista-labs-gestion"></ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm w-100" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -154,15 +160,20 @@
 <div class="modal fade" id="modalVerDescripcion" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow-lg">
-            <div class="modal-header modal-header-itt"><h5 class="modal-title fw-bold" id="descTitulo"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header modal-header-itt">
+                <h5 class="modal-title fw-bold" id="descTitulo"></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
             <div class="modal-body p-4"><div id="descTexto" style="color:#000; white-space: pre-wrap;"></div></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
         </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // HE MANTENIDO TODA TU LÓGICA DE JAVASCRIPT IGUAL PARA QUE NO FALLE NADA
     const URL_API = 'https://inventario-laboratorio-itt.onrender.com';
     let listaEquipos = [], listaLabs = [], pestañaActual = 'Equipo', esAdmin = false;
 
