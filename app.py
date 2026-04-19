@@ -7,7 +7,6 @@ app = Flask(__name__)
 CORS(app)
 
 # --- CONFIGURACIÓN DE LA BASE DE DATOS EN LA NUBE (CLEVER CLOUD) ---
-# He usado los datos de tu captura de pantalla
 DB_USER = "umxecnhtmv1r1pek"
 DB_PASS = "sw925d7pO4cACXkhbppS"
 DB_HOST = "br9qvi6nvfv8mled1zqu-mysql.services.clever-cloud.com"
@@ -60,7 +59,29 @@ def obtener_equipos():
 @app.route('/agregar', methods=['POST'])
 def agregar():
     d = request.json
-    nuevo = Equipo(nombre=d['nombre'], descripcion=d.get('descripcion'), cantidad=d['cantidad'], operativos=d.get('operativos'), ubicacion=d['ubicacion'], tipo=d['tipo'], estado=d['estado'])
+    
+    # --- NUEVAS VALIDACIONES ---
+    cant = d.get('cantidad', 0)
+    oper = d.get('operativos', 0)
+
+    # 1. No permitir menores a cero
+    if cant < 0 or oper < 0:
+        return jsonify({"error": "No se permiten valores negativos"}), 400
+    
+    # 2. Operativos no mayor a cantidad total
+    if oper > cant:
+        return jsonify({"error": "Los operativos no pueden superar al total"}), 400
+
+    # Si pasa las validaciones, se guarda
+    nuevo = Equipo(
+        nombre=d['nombre'], 
+        descripcion=d.get('descripcion'), 
+        cantidad=cant, 
+        operativos=oper, 
+        ubicacion=d['ubicacion'], 
+        tipo=d['tipo'], 
+        estado=d['estado']
+    )
     db.session.add(nuevo)
     db.session.commit()
     return jsonify({"m":"ok"})
@@ -86,6 +107,5 @@ def borrar_lab(id):
     return jsonify({"m":"ok"})
 
 if __name__ == '__main__':
-    # Render usará la variable de entorno PORT
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port)
