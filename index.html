@@ -8,32 +8,61 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
-        :root { --azul-itt: #1b396a; --rojo-itt: #dc3545; --naranja-itt: #fd7e14; }
+        :root { 
+            --azul-itt: #1b396a; --rojo-itt: #dc3545; --naranja-itt: #fd7e14;
+            --bg-body: #f8f9fa; --bg-card: #ffffff; --text-main: #212529;
+            --text-muted: #6c757d; --bg-tabs: #f1f5f9; --border-color: #dee2e6;
+        }
+
+        [data-theme="dark"] {
+            --bg-body: #0f172a; --bg-card: #1e293b; --text-main: #f1f5f9;
+            --text-muted: #94a3b8; --bg-tabs: #1e293b; --border-color: #334155;
+        }
+
+        body { background-color: var(--bg-body); color: var(--text-main); transition: 0.3s; min-height: 100vh; }
+        
         .navbar-itt { background-color: var(--azul-itt); color: white; padding: 10px 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .header-container { display: flex; align-items: center; justify-content: space-between; }
-        .header-search { position: relative; width: 35%; }
+        .header-container { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
+        .header-search { position: relative; width: 35%; min-width: 250px; }
         .header-search input { background-color: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; color: white; padding: 8px 15px 8px 40px; width: 100%; transition: 0.3s; }
         .header-search input:focus { background-color: white; color: var(--azul-itt); outline: none; }
         .header-search i { position: absolute; left: 12px; top: 10px; color: rgba(255,255,255,0.6); }
-        body { background-color: #f8f9fa; }
-        .nav-tabs-itt { background-color: #f1f5f9; padding: 0 20px; border-bottom: 1px solid #dee2e6; display: flex; gap: 20px; }
+
+        .nav-tabs-itt { background-color: var(--bg-tabs); padding: 0 20px; border-bottom: 1px solid var(--border-color); display: flex; gap: 20px; }
         .nav-link-itt { padding: 15px 10px; color: #64748b; text-decoration: none; font-weight: 500; cursor: pointer; }
         .nav-link-itt.active { color: var(--azul-itt); border-bottom: 3px solid var(--azul-itt); }
-        .contenedor-inventario { background: white; border-radius: 12px; padding: 25px; margin-top: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        [data-theme="dark"] .nav-link-itt.active { color: #38bdf8; border-bottom: 3px solid #38bdf8; }
+
+        .contenedor-inventario { background: var(--bg-card); border-radius: 12px; padding: 25px; margin-top: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid var(--border-color); }
+        .table { --bs-table-bg: transparent; --bs-table-color: var(--text-main); --bs-table-border-color: var(--border-color); }
         
         .solo-admin { display: none !important; }
         .admin-activo .solo-admin { display: inline-block !important; }
-        
-        .status-funcionando { color: #198754; font-weight: bold; background-color: #e8f5e9; padding: 4px 8px; border-radius: 4px; }
-        .status-mantenimiento { color: var(--naranja-itt); font-weight: bold; background-color: #fff3e6; padding: 4px 8px; border-radius: 4px; }
-        .status-inactiva { color: var(--rojo-itt); font-weight: bold; background-color: #f8d7da; padding: 4px 8px; border-radius: 4px; }
+
+        /* FILTROS */
+        .btn-filtro { border-radius: 20px; font-size: 0.85rem; padding: 5px 18px; transition: 0.3s; border: 2px solid; background: transparent; font-weight: 600; }
+        .f-todos { border-color: var(--text-muted); color: var(--text-muted); }
+        .f-todos.active { background: var(--text-muted); color: white !important; }
+        .f-funcionando { border-color: #198754; color: #198754; }
+        .f-funcionando.active { background: #198754; color: white !important; }
+        .f-mantenimiento { border-color: var(--naranja-itt); color: var(--naranja-itt); }
+        .f-mantenimiento.active { background: var(--naranja-itt); color: white !important; }
+        .f-inactiva { border-color: var(--rojo-itt); color: var(--rojo-itt); }
+        .f-inactiva.active { background: var(--rojo-itt); color: white !important; }
+
+        /* MODALES */
+        .modal-content { background-color: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); }
+        .modal-header-itt { background-color: var(--azul-itt); color: white; border: none; }
+        .form-control, .form-select { background-color: var(--bg-card); border-color: var(--border-color); color: var(--text-main); }
+        [data-theme="dark"] .form-control:focus, [data-theme="dark"] .form-select:focus { background-color: #1e293b; color: white; border-color: #38bdf8; }
+        .list-group-item { background-color: transparent; color: var(--text-main); border-color: var(--border-color); }
 
         .nombre-equipo { color: var(--azul-itt); text-decoration: none; cursor: pointer; font-weight: bold; }
-        .nombre-equipo:hover { text-decoration: underline; }
-        .modal-header-itt { background-color: var(--azul-itt); color: white; }
+        [data-theme="dark"] .nombre-equipo { color: #38bdf8; }
+        .btn-theme { background: none; border: 1px solid rgba(255,255,255,0.4); color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
 
-        /* Estilo para los botones de filtro */
-        .btn-filtro { border-radius: 20px; font-size: 0.85rem; padding: 4px 15px; transition: 0.2s; }
+        /* Estilos para SweetAlert Dark */
+        .swal2-dark { background: #1e293b !important; color: #f1f5f9 !important; }
     </style>
 </head>
 <body>
@@ -41,17 +70,20 @@
 <div class="navbar-itt">
     <div class="header-container">
         <div>
-            <h4 class="mb-0 fw-bold">Inventario de Laboratorio</h4>
-            <p class="mb-0 small opacity-75">Tecnológico Nacional de México | Tijuana</p>
+            <h4 class="mb-0 fw-bold">Inventario Laboratorio</h4>
+            <p class="mb-0 small opacity-75">Tecnológico de Tijuana</p>
         </div>
         <div class="header-search">
-            <input type="text" id="inputBuscador" placeholder="Buscar artículo..." onkeyup="aplicarFiltros()">
+            <input type="text" id="inputBuscador" placeholder="Buscar..." onkeyup="aplicarFiltros()">
             <i class="bi bi-search"></i>
         </div>
-        <div class="text-end">
-            <div id="info-usuario" class="small opacity-75 mb-1">Modo: Invitado</div>
-            <button id="btn-pass" class="btn btn-sm btn-outline-light py-0 me-2 solo-admin" onclick="cambiarPassword()">Cambiar Clave</button>
-            <button id="btn-auth" class="btn btn-sm btn-light py-0 fw-bold" onclick="manejarAuth()">Entrar</button>
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn-theme" onclick="toggleTheme()"><i id="theme-icon" class="bi bi-moon-stars"></i></button>
+            <div class="text-end">
+                <div id="info-usuario" class="small opacity-75 mb-1">Modo: Invitado</div>
+                <button id="btn-pass" class="btn btn-sm btn-outline-light py-0 me-2 solo-admin" onclick="cambiarPassword()">Clave</button>
+                <button id="btn-auth" class="btn btn-sm btn-light py-0 fw-bold" onclick="manejarAuth()">Entrar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -62,39 +94,33 @@
 </div>
 
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
         <h3 id="titulo-seccion" class="fw-bold mb-0">Equipos</h3>
         <div>
-            <button class="btn btn-outline-secondary me-2 solo-admin" onclick="abrirGestionLabs()">
-                <i class="bi bi-geo-alt"></i> Ubicaciones
-            </button>
-            <button class="btn btn-primary px-4 solo-admin" style="background-color: var(--azul-itt); border: none;" onclick="prepararFormulario()" data-bs-toggle="modal" data-bs-target="#modalEquipo">
-                + Agregar artículo
-            </button>
+            <button class="btn btn-outline-secondary me-2 solo-admin" onclick="abrirGestionLabs()"><i class="bi bi-geo-alt"></i> Ubicaciones</button>
+            <button class="btn btn-primary solo-admin" style="background-color: var(--azul-itt); border:none;" onclick="prepararFormulario()" data-bs-toggle="modal" data-bs-target="#modalEquipo">+ Agregar</button>
         </div>
     </div>
 
     <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
-        <button class="btn btn-filtro btn-dark" onclick="setFiltroEstado('Todos')">Todos</button>
-        <button class="btn btn-filtro btn-outline-success" onclick="setFiltroEstado('Funcionando')">Funcionando</button>
-        <button class="btn btn-filtro btn-outline-warning" onclick="setFiltroEstado('Mantenimiento')">Mantenimiento</button>
-        <button class="btn btn-filtro btn-outline-danger" onclick="setFiltroEstado('Inactiva')">Inactiva</button>
-        
-        <div class="ms-md-auto d-flex align-items-center">
-            <small class="text-muted me-2">Ubicación:</small>
-            <select id="filtroUbicacion" class="form-select form-select-sm" style="width: auto;" onchange="aplicarFiltros()">
-                <option value="Todas">Todas</option>
+        <button id="btn-f-Todos" class="btn-filtro f-todos active" onclick="setFiltroEstado('Todos')">Todos</button>
+        <button id="btn-f-Funcionando" class="btn-filtro f-funcionando" onclick="setFiltroEstado('Funcionando')">Funcionando</button>
+        <button id="btn-f-Mantenimiento" class="btn-filtro f-mantenimiento" onclick="setFiltroEstado('Mantenimiento')">Mantenimiento</button>
+        <button id="btn-f-Inactiva" class="btn-filtro f-inactiva" onclick="setFiltroEstado('Inactiva')">Inactiva</button>
+        <div class="ms-md-auto">
+            <select id="filtroUbicacion" class="form-select form-select-sm" onchange="aplicarFiltros()">
+                <option value="Todas">Todas las Ubicaciones</option>
             </select>
         </div>
     </div>
 
     <div class="contenedor-inventario">
-        <table class="table align-middle">
-            <thead class="text-secondary small text-uppercase">
-                <tr><th>Nombre</th><th>Cantidad</th><th>Ubicación</th><th>Estado</th><th class="text-end">Acciones</th></tr>
-            </thead>
-            <tbody id="contenido-tabla"></tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead><tr class="text-secondary small"><th>Nombre</th><th>Cantidad</th><th>Ubicación</th><th>Estado</th><th class="text-end">Acciones</th></tr></thead>
+                <tbody id="contenido-tabla"></tbody>
+            </table>
+        </div>
     </div>
 </div>
 
@@ -102,14 +128,14 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="form-equipo">
-                <div class="modal-header modal-header-itt"><h5 class="modal-title fw-bold">Detalle del Artículo</h5></div>
+                <div class="modal-header modal-header-itt"><h5 class="modal-title fw-bold">Detalle del Artículo</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
                 <div class="modal-body">
                     <input type="hidden" id="id-equipo">
                     <div class="mb-3"><label class="form-label fw-bold">Nombre</label><input type="text" id="nombre" class="form-control" required></div>
-                    <div class="mb-3"><label class="form-label fw-bold">Descripción</label><textarea id="descripcion" class="form-control" rows="3"></textarea></div>
+                    <div class="mb-3"><label class="form-label fw-bold">Descripción</label><textarea id="descripcion" class="form-control" rows="2"></textarea></div>
                     <div class="row">
-                        <div class="col-6 mb-3"><label class="form-label fw-bold">Total</label><input type="number" id="cantidad" class="form-control" min="0" value="1" required></div>
-                        <div class="col-6 mb-3"><label class="form-label fw-bold text-success">Funcionando</label><input type="number" id="operativos" class="form-control" min="0" value="1" required></div>
+                        <div class="col-6 mb-3"><label class="form-label fw-bold">Total</label><input type="number" id="cantidad" class="form-control" min="0" required></div>
+                        <div class="col-6 mb-3"><label class="form-label fw-bold">Operativos</label><input type="number" id="operativos" class="form-control" min="0" required></div>
                     </div>
                     <div class="row">
                         <div class="col-6 mb-3"><label class="form-label fw-bold">Ubicación</label><select id="ubicacion" class="form-select"></select></div>
@@ -117,7 +143,7 @@
                     </div>
                     <div class="mb-3"><label class="form-label fw-bold">Estado</label><select id="estado" class="form-select"><option value="Funcionando">Funcionando</option><option value="Mantenimiento">Mantenimiento</option><option value="Inactiva">Inactiva</option></select></div>
                 </div>
-                <div class="modal-footer"><button type="submit" class="btn btn-primary w-100" style="background-color: var(--azul-itt);">Guardar Cambios</button></div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary w-100" style="background: var(--azul-itt); border:none;">Guardar</button></div>
             </form>
         </div>
     </div>
@@ -126,12 +152,9 @@
 <div class="modal fade" id="modalLabs" tabindex="-1">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
-            <div class="modal-header modal-header-itt"><h5 class="modal-title fw-bold">Ubicaciones</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+            <div class="modal-header modal-header-itt"><h5 class="modal-title fw-bold">Ubicaciones</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
-                <div class="input-group mb-3">
-                    <input type="text" id="nuevoLabNombre" class="form-control" placeholder="Nombre">
-                    <button class="btn btn-success" onclick="agregarLab()"><i class="bi bi-plus"></i></button>
-                </div>
+                <div class="input-group mb-3"><input type="text" id="nuevoLabNombre" class="form-control" placeholder="Nombre"><button class="btn btn-success" onclick="agregarLab()"><i class="bi bi-plus"></i></button></div>
                 <ul class="list-group list-group-flush" id="lista-labs-gestion"></ul>
             </div>
         </div>
@@ -139,202 +162,132 @@
 </div>
 
 <div class="modal fade" id="modalVerDescripcion" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg">
-            <div class="modal-header modal-header-itt"><h5 class="modal-title fw-bold" id="descTitulo"></h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body p-4"><div id="descTexto" style="color:#000; white-space: pre-wrap;"></div></div>
-        </div>
-    </div>
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header modal-header-itt"><h5 class="modal-title fw-bold" id="descTitulo"></h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><div id="descTexto" style="white-space: pre-wrap;"></div></div></div></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const URL_API = 'https://inventario-laboratorio-itt.onrender.com';
-    let listaEquipos = [], listaLabs = [], pestañaActual = 'Equipo', esAdmin = false;
-    let filtroEstadoActual = 'Todos';
+    let listaEquipos = [], listaLabs = [], pestañaActual = 'Equipo', esAdmin = false, filtroEstadoActual = 'Todos';
 
-    // --- LÓGICA DE FILTRADO COMBINADO ---
-    function aplicarFiltros() {
-        const busqueda = document.getElementById('inputBuscador').value.toLowerCase();
-        const ubicacion = document.getElementById('filtroUbicacion').value;
-
-        const filtrados = listaEquipos.filter(e => {
-            const coincideTipo = e.tipo === pestañaActual;
-            const coincideNombre = e.nombre.toLowerCase().includes(busqueda);
-            const coincideEstado = (filtroEstadoActual === 'Todos' || e.estado === filtroEstadoActual);
-            const coincideUbicacion = (ubicacion === 'Todas' || e.ubicacion === ubicacion);
-            return coincideTipo && coincideNombre && coincideEstado && coincideUbicacion;
+    // Función para Alertas adaptables al tema
+    function alerta() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        return Swal.mixin({
+            customClass: { popup: isDark ? 'swal2-dark' : '' },
+            confirmButtonColor: '#1b396a',
+            cancelButtonColor: '#dc3545'
         });
-        renderizarTabla(filtrados);
+    }
+
+    function toggleTheme() {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        document.getElementById('theme-icon').className = isDark ? 'bi bi-moon-stars' : 'bi bi-sun';
+        localStorage.setItem('theme', isDark ? 'light' : 'dark');
+    }
+    if (localStorage.getItem('theme') === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        document.getElementById('theme-icon').className = 'bi bi-sun';
     }
 
     function setFiltroEstado(estado) {
         filtroEstadoActual = estado;
+        document.querySelectorAll('.btn-filtro').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(`btn-f-${estado}`).classList.add('active');
         aplicarFiltros();
     }
 
-    // --- VALIDACIÓN DE CANTIDADES ---
-    document.getElementById('cantidad').addEventListener('input', function() { 
-        if (this.value < 0) this.value = 0;
-        document.getElementById('operativos').value = this.value;
-        document.getElementById('operativos').setAttribute('max', this.value);
-    });
-
-    document.getElementById('operativos').addEventListener('input', function() {
-        if (this.value < 0) this.value = 0;
-        const total = parseInt(document.getElementById('cantidad').value) || 0;
-        if (parseInt(this.value) > total) this.value = total;
-    });
-
-    // --- FUNCIONES DE UBICACIONES ---
-    async function agregarLab() {
-        const nombre = document.getElementById('nuevoLabNombre').value;
-        if (!nombre) return;
-        await fetch(`${URL_API}/laboratorios`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({nombre}) });
-        document.getElementById('nuevoLabNombre').value = '';
-        await cargarDatos();
+    function aplicarFiltros() {
+        const bus = document.getElementById('inputBuscador').value.toLowerCase();
+        const ubi = document.getElementById('filtroUbicacion').value;
+        const fil = listaEquipos.filter(e => (e.tipo === pestañaActual) && e.nombre.toLowerCase().includes(bus) && (filtroEstadoActual === 'Todos' || e.estado === filtroEstadoActual) && (ubi === 'Todas' || e.ubicacion === ubi));
+        renderizarTabla(fil);
     }
 
-    async function eliminarLab(id) {
-        const lab = listaLabs.find(l => l.id === id);
-        const { isConfirmed } = await Swal.fire({
-            title: '¿Eliminar?', text: `Borrar "${lab?.nombre}".`, icon: 'warning',
-            showCancelButton: true, confirmButtonColor: '#dc3545'
-        });
-        if (isConfirmed) {
-            const res = await fetch(`${URL_API}/laboratorios/${id}`, { method: 'DELETE' });
-            if (res.ok) await cargarDatos();
-        }
-    }
-
-    function abrirGestionLabs() { actualizarListaGestionLabs(); new bootstrap.Modal(document.getElementById('modalLabs')).show(); }
-
-    function actualizarListaGestionLabs() {
-        document.getElementById('lista-labs-gestion').innerHTML = listaLabs.map(l => `
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                ${l.nombre} <button class="btn btn-sm text-danger" onclick="eliminarLab(${l.id})"><i class="bi bi-x-circle"></i></button>
-            </li>`).join('') || '<li class="list-group-item small text-muted">No hay ubicaciones</li>';
-        
-        const selectForm = document.getElementById('ubicacion');
-        const selectFiltro = document.getElementById('filtroUbicacion');
-        
-        const opciones = listaLabs.map(l => `<option value="${l.nombre}">${l.nombre}</option>`).join('');
-        selectForm.innerHTML = opciones;
-        selectFiltro.innerHTML = '<option value="Todas">Todas</option>' + opciones;
-    }
-
-    // --- AUTENTICACIÓN ---
-    async function manejarAuth() {
-        if (!esAdmin) {
-            const { value: user } = await Swal.fire({ title: 'Usuario ITT', input: 'text', confirmButtonColor: '#1b396a', showCancelButton: true });
-            if (!user) return;
-            const { value: pass } = await Swal.fire({ title: 'Contraseña', input: 'password', confirmButtonColor: '#1b396a', showCancelButton: true });
-            if (pass) {
-                const res = await fetch(`${URL_API}/login`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({user, pass}) });
-                if (res.ok) { 
-                    esAdmin = true; localStorage.setItem("itt_user", user); localStorage.setItem("itt_token", "active"); aplicarPermisos(); 
-                } else { Swal.fire({ icon: 'error', title: 'Error', text: 'Credenciales inválidas' }); }
-            }
-        } else {
-            const res = await Swal.fire({ title: '¿Cerrar sesión?', showCancelButton: true, confirmButtonColor: '#dc3545' });
-            if (res.isConfirmed) { esAdmin = false; localStorage.clear(); aplicarPermisos(); }
-        }
-    }
-
-    async function cambiarPassword() {
-        const user = localStorage.getItem("itt_user");
-        const { value: old_pass } = await Swal.fire({ title: 'Clave Actual', input: 'password', confirmButtonColor: '#1b396a', showCancelButton: true });
-        if (!old_pass) return;
-        const { value: new_pass } = await Swal.fire({ title: 'Nueva Clave', input: 'password', confirmButtonColor: '#1b396a', showCancelButton: true });
-        if (new_pass) {
-            const res = await fetch(`${URL_API}/cambiar-password`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user, old_pass, new_pass }) });
-            if (res.ok) Swal.fire('Éxito', 'Clave actualizada', 'success');
-            else Swal.fire('Error', 'La clave actual no es correcta', 'error');
-        }
-    }
-
-    function aplicarPermisos() {
-        const token = localStorage.getItem("itt_token");
-        const user = localStorage.getItem("itt_user");
-        esAdmin = (token === "active" && user);
-        document.body.classList.toggle('admin-activo', esAdmin);
-        document.getElementById('info-usuario').innerText = esAdmin ? "Sesión: " + user : "Modo: Invitado";
-        document.getElementById('btn-auth').innerText = esAdmin ? "Salir" : "Entrar";
-        aplicarFiltros();
+    function renderizarTabla(datos) {
+        document.getElementById('contenido-tabla').innerHTML = datos.map(e => `
+            <tr>
+                <td><a class="nombre-equipo" onclick="verDesc(${e.id})">${e.nombre}</a></td>
+                <td>${e.operativos}/${e.cantidad}</td>
+                <td>${e.ubicacion}</td>
+                <td><span class="badge-estado ${e.estado==='Funcionando'?'bg-f':e.estado==='Mantenimiento'?'bg-m':'bg-i'}">${e.estado}</span></td>
+                <td class="text-end">${esAdmin ? `<button class="btn btn-sm text-primary" onclick="llenarForm(${e.id})"><i class="bi bi-pencil"></i></button><button class="btn btn-sm text-danger" onclick="eliminarEq(${e.id})"><i class="bi bi-trash"></i></button>` : '<i class="bi bi-lock opacity-50"></i>'}</td>
+            </tr>`).join('');
     }
 
     async function cargarDatos() {
         try {
-            const [resE, resL] = await Promise.all([fetch(`${URL_API}/equipos`), fetch(`${URL_API}/laboratorios`)]);
-            listaEquipos = await resE.json(); 
-            listaLabs = await resL.json();
-            actualizarListaGestionLabs();
-            aplicarPermisos();
+            const [re, rl] = await Promise.all([fetch(`${URL_API}/equipos`), fetch(`${URL_API}/laboratorios`)]);
+            listaEquipos = await re.json(); listaLabs = await rl.json();
+            actualizarUbis(); aplicarPermisos();
         } catch (e) { console.error(e); }
     }
 
-    function renderizarTabla(datos) {
-        document.getElementById('contenido-tabla').innerHTML = datos.map(item => {
-            const cant = (parseInt(item.operativos) === parseInt(item.cantidad)) ? item.cantidad : `${item.operativos}/${item.cantidad}`;
-            const cls = item.estado === 'Mantenimiento' ? 'status-mantenimiento' : (item.estado === 'Inactiva' ? 'status-inactiva' : 'status-funcionando');
-            return `<tr><td><a class="nombre-equipo" onclick="verDesc(${item.id})">${item.nombre}</a></td><td>${cant}</td><td>${item.ubicacion}</td><td><span class="${cls}">${item.estado}</span></td>
-            <td class="text-end">${esAdmin ? `<button class="btn btn-sm text-primary" onclick="llenarForm(${item.id})"><i class="bi bi-pencil"></i></button><button class="btn btn-sm text-danger" onclick="eliminarEq(${item.id})"><i class="bi bi-trash"></i></button>` : '<i class="bi bi-lock"></i>'}</td></tr>`;
-        }).join('');
+    function actualizarUbis() {
+        document.getElementById('lista-labs-gestion').innerHTML = listaLabs.map(l => `<li class="list-group-item d-flex justify-content-between">${l.nombre} <button class="btn btn-sm text-danger" onclick="eliminarLab(${l.id})"><i class="bi bi-trash"></i></button></li>`).join('');
+        const ops = listaLabs.map(l => `<option value="${l.nombre}">${l.nombre}</option>`).join('');
+        document.getElementById('ubicacion').innerHTML = ops;
+        document.getElementById('filtroUbicacion').innerHTML = '<option value="Todas">Todas las Ubicaciones</option>' + ops;
     }
 
-    async function eliminarEq(id) { if ((await Swal.fire({title:'¿Borrar?', showCancelButton:true})).isConfirmed) { await fetch(`${URL_API}/eliminar/${id}`, {method:'DELETE'}); cargarDatos(); } }
-    
-    function prepararFormulario() { 
-        document.getElementById('id-equipo').value = ''; 
-        document.getElementById('form-equipo').reset(); 
-        document.getElementById('tipo').value = pestañaActual; 
+    async function manejarAuth() {
+        if (!esAdmin) {
+            const { value: u } = await alerta().fire({ title: 'Usuario', input: 'text', showCancelButton: true });
+            const { value: p } = await alerta().fire({ title: 'Clave', input: 'password', showCancelButton: true });
+            if (u && p) {
+                const res = await fetch(`${URL_API}/login`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({user:u, pass:p}) });
+                if (res.ok) { esAdmin=true; localStorage.setItem("itt_user", u); localStorage.setItem("itt_token", "active"); aplicarPermisos(); }
+                else { alerta().fire('Error', 'Datos incorrectos', 'error'); }
+            }
+        } else { esAdmin=false; localStorage.clear(); aplicarPermisos(); }
     }
 
-    function llenarForm(id) {
+    async function cambiarPassword() {
+        const u = localStorage.getItem("itt_user");
+        const { value: oldP } = await alerta().fire({ title: 'Clave Actual', input: 'password', showCancelButton: true });
+        const { value: newP } = await alerta().fire({ title: 'Nueva Clave', input: 'password', showCancelButton: true });
+        if (oldP && newP) {
+            const res = await fetch(`${URL_API}/cambiar-password`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user:u, old_pass:oldP, new_pass:newP }) });
+            if (res.ok) alerta().fire('Éxito', 'Clave cambiada', 'success');
+            else alerta().fire('Error', 'La clave actual es incorrecta', 'error');
+        }
+    }
+
+    function aplicarPermisos() {
+        esAdmin = localStorage.getItem("itt_token") === "active";
+        document.body.classList.toggle('admin-activo', esAdmin);
+        document.getElementById('info-usuario').innerText = esAdmin ? `Admin: ${localStorage.getItem("itt_user")}` : "Modo: Invitado";
+        document.getElementById('btn-auth').innerText = esAdmin ? "Salir" : "Entrar";
+        aplicarFiltros();
+    }
+
+    window.cambiarPestaña = (t) => { pestañaActual = t; document.querySelectorAll('.nav-link-itt').forEach(l => l.classList.remove('active')); document.getElementById(`tab-${t}`).classList.add('active'); document.getElementById('titulo-seccion').innerText = t; aplicarFiltros(); };
+    window.verDesc = (id) => { const e = listaEquipos.find(i => i.id === id); document.getElementById('descTitulo').innerText = e.nombre; document.getElementById('descTexto').innerText = e.descripcion || "Sin descripción."; new bootstrap.Modal(document.getElementById('modalVerDescripcion')).show(); };
+    window.prepararFormulario = () => { document.getElementById('id-equipo').value = ''; document.getElementById('form-equipo').reset(); document.getElementById('tipo').value = pestañaActual; };
+    window.llenarForm = (id) => {
         const e = listaEquipos.find(i => i.id === id);
-        document.getElementById('id-equipo').value=e.id;
-        document.getElementById('nombre').value=e.nombre;
-        document.getElementById('descripcion').value=e.descripcion;
-        document.getElementById('cantidad').value=e.cantidad;
-        document.getElementById('operativos').value=e.operativos;
-        document.getElementById('ubicacion').value=e.ubicacion;
-        document.getElementById('tipo').value=e.tipo;
-        document.getElementById('estado').value=e.estado;
+        document.getElementById('id-equipo').value = e.id; document.getElementById('nombre').value = e.nombre;
+        document.getElementById('descripcion').value = e.descripcion; document.getElementById('cantidad').value = e.cantidad;
+        document.getElementById('operativos').value = e.operativos; document.getElementById('ubicacion').value = e.ubicacion;
+        document.getElementById('tipo').value = e.tipo; document.getElementById('estado').value = e.estado;
         new bootstrap.Modal(document.getElementById('modalEquipo')).show();
-    }
+    };
+    window.eliminarEq = async (id) => { if ((await alerta().fire({title:'¿Eliminar?', showCancelButton:true, icon: 'warning'})).isConfirmed) { await fetch(`${URL_API}/eliminar/${id}`, { method: 'DELETE' }); cargarDatos(); } };
+    window.abrirGestionLabs = () => new bootstrap.Modal(document.getElementById('modalLabs')).show();
+    window.agregarLab = async () => { const n = document.getElementById('nuevoLabNombre').value; if (!n) return; await fetch(`${URL_API}/laboratorios`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({nombre:n}) }); document.getElementById('nuevoLabNombre').value = ''; cargarDatos(); };
+    window.eliminarLab = async (id) => { if ((await alerta().fire({title:'¿Borrar?', showCancelButton:true, icon: 'warning'})).isConfirmed) { await fetch(`${URL_API}/laboratorios/${id}`, { method: 'DELETE' }); cargarDatos(); } };
 
-    document.getElementById('form-equipo').addEventListener('submit', async (ev) => {
+    document.getElementById('form-equipo').onsubmit = async (ev) => {
         ev.preventDefault();
         const id = document.getElementById('id-equipo').value;
-        const d = { 
-            nombre: document.getElementById('nombre').value, 
-            descripcion: document.getElementById('descripcion').value, 
-            operativos: parseInt(document.getElementById('operativos').value), 
-            cantidad: parseInt(document.getElementById('cantidad').value), 
-            ubicacion: document.getElementById('ubicacion').value, 
-            tipo: document.getElementById('tipo').value, 
-            estado: document.getElementById('estado').value 
-        };
+        const d = { nombre: document.getElementById('nombre').value, descripcion: document.getElementById('descripcion').value, operativos: parseInt(document.getElementById('operativos').value), cantidad: parseInt(document.getElementById('cantidad').value), ubicacion: document.getElementById('ubicacion').value, tipo: document.getElementById('tipo').value, estado: document.getElementById('estado').value };
         await fetch(id ? `${URL_API}/editar/${id}` : `${URL_API}/agregar`, { method: id ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(d) });
         bootstrap.Modal.getInstance(document.getElementById('modalEquipo')).hide(); cargarDatos();
-    });
-
-    function cambiarPestaña(t) { 
-        pestañaActual = t; 
-        document.querySelectorAll('.nav-link-itt').forEach(l => l.classList.remove('active')); 
-        document.getElementById('tab-'+t).classList.add('active'); 
-        document.getElementById('titulo-seccion').innerText = t; 
-        aplicarFiltros(); 
-    }
-
-    function verDesc(id) { 
-        const e = listaEquipos.find(i => i.id === id); 
-        document.getElementById('descTitulo').innerText = e.nombre; 
-        document.getElementById('descTexto').innerText = e.descripcion || "Sin descripción."; 
-        new bootstrap.Modal(document.getElementById('modalVerDescripcion')).show(); 
-    }
+    };
 
     cargarDatos();
 </script>
 </body>
+</html>
 </html>
