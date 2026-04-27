@@ -19,7 +19,7 @@
         .nav-tabs-itt { background-color: #f1f5f9; padding: 0 20px; border-bottom: 1px solid #dee2e6; display: flex; gap: 20px; }
         .nav-link-itt { padding: 15px 10px; color: #64748b; text-decoration: none; font-weight: 500; cursor: pointer; }
         .nav-link-itt.active { color: var(--azul-itt); border-bottom: 3px solid var(--azul-itt); }
-        .contenedor-inventario { background: white; border-radius: 12px; padding: 25px; margin-top: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .contenedor-inventario { background: white; border-radius: 12px; padding: 25px; margin-top: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         
         .solo-admin { display: none !important; }
         .admin-activo .solo-admin { display: inline-block !important; }
@@ -31,6 +31,9 @@
         .nombre-equipo { color: var(--azul-itt); text-decoration: none; cursor: pointer; font-weight: bold; }
         .nombre-equipo:hover { text-decoration: underline; }
         .modal-header-itt { background-color: var(--azul-itt); color: white; }
+
+        /* Estilo para los botones de filtro */
+        .btn-filtro { border-radius: 20px; font-size: 0.85rem; padding: 4px 15px; transition: 0.2s; }
     </style>
 </head>
 <body>
@@ -42,7 +45,7 @@
             <p class="mb-0 small opacity-75">Tecnológico Nacional de México | Tijuana</p>
         </div>
         <div class="header-search">
-            <input type="text" id="inputBuscador" placeholder="Buscar artículo..." onkeyup="filtrarPorNombre()">
+            <input type="text" id="inputBuscador" placeholder="Buscar artículo..." onkeyup="aplicarFiltros()">
             <i class="bi bi-search"></i>
         </div>
         <div class="text-end">
@@ -59,8 +62,8 @@
 </div>
 
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h3 id="titulo-seccion" class="fw-bold">Equipos</h3>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 id="titulo-seccion" class="fw-bold mb-0">Equipos</h3>
         <div>
             <button class="btn btn-outline-secondary me-2 solo-admin" onclick="abrirGestionLabs()">
                 <i class="bi bi-geo-alt"></i> Ubicaciones
@@ -70,6 +73,21 @@
             </button>
         </div>
     </div>
+
+    <div class="d-flex flex-wrap gap-2 mb-3 align-items-center">
+        <button class="btn btn-filtro btn-dark" onclick="setFiltroEstado('Todos')">Todos</button>
+        <button class="btn btn-filtro btn-outline-success" onclick="setFiltroEstado('Funcionando')">Funcionando</button>
+        <button class="btn btn-filtro btn-outline-warning" onclick="setFiltroEstado('Mantenimiento')">Mantenimiento</button>
+        <button class="btn btn-filtro btn-outline-danger" onclick="setFiltroEstado('Inactiva')">Inactiva</button>
+        
+        <div class="ms-md-auto d-flex align-items-center">
+            <small class="text-muted me-2">Ubicación:</small>
+            <select id="filtroUbicacion" class="form-select form-select-sm" style="width: auto;" onchange="aplicarFiltros()">
+                <option value="Todas">Todas</option>
+            </select>
+        </div>
+    </div>
+
     <div class="contenedor-inventario">
         <table class="table align-middle">
             <thead class="text-secondary small text-uppercase">
@@ -133,54 +151,59 @@
 <script>
     const URL_API = 'https://inventario-laboratorio-itt.onrender.com';
     let listaEquipos = [], listaLabs = [], pestañaActual = 'Equipo', esAdmin = false;
+    let filtroEstadoActual = 'Todos';
 
-    // --- VALIDACIÓN DE CANTIDADES (CON SEGUIMIENTO AUTOMÁTICO) ---
+    // --- LÓGICA DE FILTRADO COMBINADO ---
+    function aplicarFiltros() {
+        const busqueda = document.getElementById('inputBuscador').value.toLowerCase();
+        const ubicacion = document.getElementById('filtroUbicacion').value;
+
+        const filtrados = listaEquipos.filter(e => {
+            const coincideTipo = e.tipo === pestañaActual;
+            const coincideNombre = e.nombre.toLowerCase().includes(busqueda);
+            const coincideEstado = (filtroEstadoActual === 'Todos' || e.estado === filtroEstadoActual);
+            const coincideUbicacion = (ubicacion === 'Todas' || e.ubicacion === ubicacion);
+            return coincideTipo && coincideNombre && coincideEstado && coincideUbicacion;
+        });
+        renderizarTabla(filtrados);
+    }
+
+    function setFiltroEstado(estado) {
+        filtroEstadoActual = estado;
+        aplicarFiltros();
+    }
+
+    // --- VALIDACIÓN DE CANTIDADES ---
     document.getElementById('cantidad').addEventListener('input', function() { 
         if (this.value < 0) this.value = 0;
-        
-        // El valor de funcionando sigue al total automáticamente
         document.getElementById('operativos').value = this.value;
-        
-        // Actualizamos el tope máximo para el input de operativos
         document.getElementById('operativos').setAttribute('max', this.value);
     });
 
     document.getElementById('operativos').addEventListener('input', function() {
         if (this.value < 0) this.value = 0;
         const total = parseInt(document.getElementById('cantidad').value) || 0;
-        
-        // Evitamos que el usuario suba manualmente funcionando por encima del total
-        if (parseInt(this.value) > total) {
-            this.value = total;
-        }
+        if (parseInt(this.value) > total) this.value = total;
     });
 
-    // --- FUNCIONES DE UBICACIONES (LABORATORIOS) ---
+    // --- FUNCIONES DE UBICACIONES ---
     async function agregarLab() {
         const nombre = document.getElementById('nuevoLabNombre').value;
         if (!nombre) return;
         await fetch(`${URL_API}/laboratorios`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({nombre}) });
         document.getElementById('nuevoLabNombre').value = '';
         await cargarDatos();
-        actualizarListaGestionLabs();
     }
 
     async function eliminarLab(id) {
         const lab = listaLabs.find(l => l.id === id);
         const { isConfirmed } = await Swal.fire({
-            title: '¿Eliminar ubicación?',
-            text: `Vas a borrar "${lab ? lab.nombre : 'esta ubicación'}". Los equipos no se borrarán pero perderán su referencia.`,
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#dc3545',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Sí, borrar',
-            cancelButtonText: 'Cancelar'
+            title: '¿Eliminar?', text: `Borrar "${lab?.nombre}".`, icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#dc3545'
         });
-
         if (isConfirmed) {
             const res = await fetch(`${URL_API}/laboratorios/${id}`, { method: 'DELETE' });
-            if (res.ok) { await cargarDatos(); actualizarListaGestionLabs(); }
+            if (res.ok) await cargarDatos();
         }
     }
 
@@ -192,10 +215,15 @@
                 ${l.nombre} <button class="btn btn-sm text-danger" onclick="eliminarLab(${l.id})"><i class="bi bi-x-circle"></i></button>
             </li>`).join('') || '<li class="list-group-item small text-muted">No hay ubicaciones</li>';
         
-        document.getElementById('ubicacion').innerHTML = listaLabs.map(l => `<option value="${l.nombre}">${l.nombre}</option>`).join('');
+        const selectForm = document.getElementById('ubicacion');
+        const selectFiltro = document.getElementById('filtroUbicacion');
+        
+        const opciones = listaLabs.map(l => `<option value="${l.nombre}">${l.nombre}</option>`).join('');
+        selectForm.innerHTML = opciones;
+        selectFiltro.innerHTML = '<option value="Todas">Todas</option>' + opciones;
     }
 
-    // --- AUTENTICACIÓN Y PERMISOS ---
+    // --- AUTENTICACIÓN ---
     async function manejarAuth() {
         if (!esAdmin) {
             const { value: user } = await Swal.fire({ title: 'Usuario ITT', input: 'text', confirmButtonColor: '#1b396a', showCancelButton: true });
@@ -220,8 +248,8 @@
         const { value: new_pass } = await Swal.fire({ title: 'Nueva Clave', input: 'password', confirmButtonColor: '#1b396a', showCancelButton: true });
         if (new_pass) {
             const res = await fetch(`${URL_API}/cambiar-password`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user, old_pass, new_pass }) });
-            if (res.ok) { Swal.fire('Éxito', 'Clave actualizada en MariaDB', 'success'); }
-            else { Swal.fire('Error', 'La clave actual no es correcta', 'error'); }
+            if (res.ok) Swal.fire('Éxito', 'Clave actualizada', 'success');
+            else Swal.fire('Error', 'La clave actual no es correcta', 'error');
         }
     }
 
@@ -232,7 +260,7 @@
         document.body.classList.toggle('admin-activo', esAdmin);
         document.getElementById('info-usuario').innerText = esAdmin ? "Sesión: " + user : "Modo: Invitado";
         document.getElementById('btn-auth').innerText = esAdmin ? "Salir" : "Entrar";
-        renderizarTabla(listaEquipos.filter(e => e.tipo === pestañaActual));
+        aplicarFiltros();
     }
 
     async function cargarDatos() {
@@ -296,12 +324,7 @@
         document.querySelectorAll('.nav-link-itt').forEach(l => l.classList.remove('active')); 
         document.getElementById('tab-'+t).classList.add('active'); 
         document.getElementById('titulo-seccion').innerText = t; 
-        renderizarTabla(listaEquipos.filter(e => e.tipo === t)); 
-    }
-
-    function filtrarPorNombre() { 
-        const txt = document.getElementById('inputBuscador').value.toLowerCase(); 
-        renderizarTabla(listaEquipos.filter(e => e.tipo === pestañaActual && e.nombre.toLowerCase().includes(txt))); 
+        aplicarFiltros(); 
     }
 
     function verDesc(id) { 
