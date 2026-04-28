@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inventario Laboratorio - ITT</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
@@ -19,7 +20,7 @@
             --text-muted: #94a3b8; --bg-tabs: #1e293b; --border-color: #334155;
         }
 
-        body { background-color: var(--bg-body); color: var(--text-main); transition: 0.3s; min-height: 100vh; }
+        body { background-color: var(--bg-body); color: var(--text-main); transition: 0.3s; min-height: 100vh; font-family: 'Segoe UI', sans-serif; }
         
         .navbar-itt { background-color: var(--azul-itt); color: white; padding: 10px 25px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .header-container { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
@@ -29,17 +30,21 @@
         .header-search i { position: absolute; left: 12px; top: 10px; color: rgba(255,255,255,0.6); }
 
         .nav-tabs-itt { background-color: var(--bg-tabs); padding: 0 20px; border-bottom: 1px solid var(--border-color); display: flex; gap: 20px; }
-        .nav-link-itt { padding: 15px 10px; color: #64748b; text-decoration: none; font-weight: 500; cursor: pointer; }
+        .nav-link-itt { padding: 15px 10px; color: #64748b; text-decoration: none; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; }
         .nav-link-itt.active { color: var(--azul-itt); border-bottom: 3px solid var(--azul-itt); }
         [data-theme="dark"] .nav-link-itt.active { color: #38bdf8; border-bottom: 3px solid #38bdf8; }
 
-        .contenedor-inventario { background: var(--bg-card); border-radius: 12px; padding: 25px; margin-top: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); border: 1px solid var(--border-color); }
+        .contenedor-inventario { background: var(--bg-card); border-radius: 12px; padding: 25px; margin-top: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
         .table { --bs-table-bg: transparent; --bs-table-color: var(--text-main); --bs-table-border-color: var(--border-color); }
         
+        .badge-estado { padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; border: 1px solid; display: inline-block; }
+        .bg-f { background-color: #d1e7dd; color: #0f5132; border-color: #badbcc; } 
+        .bg-m { background-color: #fff3cd; color: #664d03; border-color: #ffecb5; } 
+        .bg-i { background-color: #f8d7da; color: #842029; border-color: #f5c2c7; }
+
         .solo-admin { display: none !important; }
         .admin-activo .solo-admin { display: inline-block !important; }
 
-        /* FILTROS */
         .btn-filtro { border-radius: 20px; font-size: 0.85rem; padding: 5px 18px; transition: 0.3s; border: 2px solid; background: transparent; font-weight: 600; }
         .f-todos { border-color: var(--text-muted); color: var(--text-muted); }
         .f-todos.active { background: var(--text-muted); color: white !important; }
@@ -50,18 +55,17 @@
         .f-inactiva { border-color: var(--rojo-itt); color: var(--rojo-itt); }
         .f-inactiva.active { background: var(--rojo-itt); color: white !important; }
 
-        /* MODALES */
         .modal-content { background-color: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color); }
         .modal-header-itt { background-color: var(--azul-itt); color: white; border: none; }
         .form-control, .form-select { background-color: var(--bg-card); border-color: var(--border-color); color: var(--text-main); }
-        [data-theme="dark"] .form-control:focus, [data-theme="dark"] .form-select:focus { background-color: #1e293b; color: white; border-color: #38bdf8; }
-        .list-group-item { background-color: transparent; color: var(--text-main); border-color: var(--border-color); }
+        [data-theme="dark"] .form-control:focus, [data-theme="dark"] .form-select:focus { background-color: #1e293b; color: white; border-color: #38bdf8; box-shadow: none; }
+        
+        .list-group-item { background-color: var(--bg-card); color: var(--text-main); border-color: var(--border-color); }
+        [data-theme="dark"] .list-group-item { background-color: #1e293b; color: #f1f5f9; border-color: #334155; }
 
         .nombre-equipo { color: var(--azul-itt); text-decoration: none; cursor: pointer; font-weight: bold; }
         [data-theme="dark"] .nombre-equipo { color: #38bdf8; }
-        .btn-theme { background: none; border: 1px solid rgba(255,255,255,0.4); color: white; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; }
-
-        /* Estilos para SweetAlert Dark */
+        .btn-theme { background: none; border: 1px solid rgba(255,255,255,0.4); color: white; border-radius: 50%; width: 35px; height: 35px; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
         .swal2-dark { background: #1e293b !important; color: #f1f5f9 !important; }
     </style>
 </head>
@@ -74,7 +78,7 @@
             <p class="mb-0 small opacity-75">Tecnológico de Tijuana</p>
         </div>
         <div class="header-search">
-            <input type="text" id="inputBuscador" placeholder="Buscar..." onkeyup="aplicarFiltros()">
+            <input type="text" id="inputBuscador" placeholder="Buscar..." oninput="aplicarFiltros()">
             <i class="bi bi-search"></i>
         </div>
         <div class="d-flex align-items-center gap-3">
@@ -117,7 +121,11 @@
     <div class="contenedor-inventario">
         <div class="table-responsive">
             <table class="table align-middle">
-                <thead><tr class="text-secondary small"><th>Nombre</th><th>Cantidad</th><th>Ubicación</th><th>Estado</th><th class="text-end">Acciones</th></tr></thead>
+                <thead>
+                    <tr class="text-secondary small">
+                        <th>Nombre</th><th>Cantidad</th><th>Ubicación</th><th>Estado</th><th class="text-end">Acciones</th>
+                    </tr>
+                </thead>
                 <tbody id="contenido-tabla"></tbody>
             </table>
         </div>
@@ -134,7 +142,7 @@
                     <div class="mb-3"><label class="form-label fw-bold">Nombre</label><input type="text" id="nombre" class="form-control" required></div>
                     <div class="mb-3"><label class="form-label fw-bold">Descripción</label><textarea id="descripcion" class="form-control" rows="2"></textarea></div>
                     <div class="row">
-                        <div class="col-6 mb-3"><label class="form-label fw-bold">Total</label><input type="number" id="cantidad" class="form-control" min="0" required></div>
+                        <div class="col-6 mb-3"><label class="form-label fw-bold">Total</label><input type="number" id="cantidad" class="form-control" min="0" required oninput="document.getElementById('operativos').value = this.value"></div>
                         <div class="col-6 mb-3"><label class="form-label fw-bold">Operativos</label><input type="number" id="operativos" class="form-control" min="0" required></div>
                     </div>
                     <div class="row">
@@ -154,7 +162,7 @@
         <div class="modal-content">
             <div class="modal-header modal-header-itt"><h5 class="modal-title fw-bold">Ubicaciones</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
             <div class="modal-body">
-                <div class="input-group mb-3"><input type="text" id="nuevoLabNombre" class="form-control" placeholder="Nombre"><button class="btn btn-success" onclick="agregarLab()"><i class="bi bi-plus"></i></button></div>
+                <div class="input-group mb-3"><input type="text" id="nuevoLabNombre" class="form-control" placeholder="Nombre..."><button class="btn btn-success" onclick="agregarLab()"><i class="bi bi-plus"></i></button></div>
                 <ul class="list-group list-group-flush" id="lista-labs-gestion"></ul>
             </div>
         </div>
@@ -170,21 +178,17 @@
     const URL_API = 'https://inventario-laboratorio-itt.onrender.com';
     let listaEquipos = [], listaLabs = [], pestañaActual = 'Equipo', esAdmin = false, filtroEstadoActual = 'Todos';
 
-    // Función para Alertas adaptables al tema
     function alerta() {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        return Swal.mixin({
-            customClass: { popup: isDark ? 'swal2-dark' : '' },
-            confirmButtonColor: '#1b396a',
-            cancelButtonColor: '#dc3545'
-        });
+        return Swal.mixin({ customClass: { popup: isDark ? 'swal2-dark' : '' }, confirmButtonColor: '#1b396a', cancelButtonColor: '#dc3545' });
     }
 
     function toggleTheme() {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
-        document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+        const next = isDark ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
         document.getElementById('theme-icon').className = isDark ? 'bi bi-moon-stars' : 'bi bi-sun';
-        localStorage.setItem('theme', isDark ? 'light' : 'dark');
+        localStorage.setItem('theme', next);
     }
     if (localStorage.getItem('theme') === 'dark') {
         document.documentElement.setAttribute('data-theme', 'dark');
@@ -201,19 +205,37 @@
     function aplicarFiltros() {
         const bus = document.getElementById('inputBuscador').value.toLowerCase();
         const ubi = document.getElementById('filtroUbicacion').value;
-        const fil = listaEquipos.filter(e => (e.tipo === pestañaActual) && e.nombre.toLowerCase().includes(bus) && (filtroEstadoActual === 'Todos' || e.estado === filtroEstadoActual) && (ubi === 'Todas' || e.ubicacion === ubi));
-        renderizarTabla(fil);
+        
+        // 1. Filtrar
+        let filtrados = listaEquipos.filter(e => 
+            (e.tipo === pestañaActual) && 
+            e.nombre.toLowerCase().includes(bus) && 
+            (filtroEstadoActual === 'Todos' || e.estado === filtroEstadoActual) && 
+            (ubi === 'Todas' || e.ubicacion === ubi)
+        );
+
+        // 2. ORDENAR ALFABÉTICAMENTE (A-Z)
+        filtrados.sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+        renderizarTabla(filtrados);
     }
 
     function renderizarTabla(datos) {
-        document.getElementById('contenido-tabla').innerHTML = datos.map(e => `
+        document.getElementById('contenido-tabla').innerHTML = datos.map(e => {
+            const displayCantidad = (e.operativos === e.cantidad) ? `${e.cantidad}` : `${e.operativos}/${e.cantidad}`;
+            let claseEstado = 'bg-f';
+            if (e.estado === 'Mantenimiento') claseEstado = 'bg-m';
+            if (e.estado === 'Inactiva') claseEstado = 'bg-i';
+
+            return `
             <tr>
                 <td><a class="nombre-equipo" onclick="verDesc(${e.id})">${e.nombre}</a></td>
-                <td>${e.operativos}/${e.cantidad}</td>
-                <td>${e.ubicacion}</td>
-                <td><span class="badge-estado ${e.estado==='Funcionando'?'bg-f':e.estado==='Mantenimiento'?'bg-m':'bg-i'}">${e.estado}</span></td>
-                <td class="text-end">${esAdmin ? `<button class="btn btn-sm text-primary" onclick="llenarForm(${e.id})"><i class="bi bi-pencil"></i></button><button class="btn btn-sm text-danger" onclick="eliminarEq(${e.id})"><i class="bi bi-trash"></i></button>` : '<i class="bi bi-lock opacity-50"></i>'}</td>
-            </tr>`).join('');
+                <td><span class="fw-bold">${displayCantidad}</span></td>
+                <td><small>${e.ubicacion}</small></td>
+                <td><span class="badge-estado ${claseEstado}">${e.estado}</span></td>
+                <td class="text-end">${esAdmin ? `<button class="btn btn-sm text-primary" onclick="llenarForm(${e.id})"><i class="bi bi-pencil"></i></button><button class="btn btn-sm text-danger" onclick="eliminarEq(${e.id})"><i class="bi bi-trash"></i></button>` : '<i class="bi bi-lock opacity-25"></i>'}</td>
+            </tr>`;
+        }).join('');
     }
 
     async function cargarDatos() {
@@ -225,7 +247,7 @@
     }
 
     function actualizarUbis() {
-        document.getElementById('lista-labs-gestion').innerHTML = listaLabs.map(l => `<li class="list-group-item d-flex justify-content-between">${l.nombre} <button class="btn btn-sm text-danger" onclick="eliminarLab(${l.id})"><i class="bi bi-trash"></i></button></li>`).join('');
+        document.getElementById('lista-labs-gestion').innerHTML = listaLabs.map(l => `<li class="list-group-item d-flex justify-content-between align-items-center">${l.nombre} <button class="btn btn-sm text-danger" onclick="eliminarLab(${l.id})"><i class="bi bi-trash"></i></button></li>`).join('');
         const ops = listaLabs.map(l => `<option value="${l.nombre}">${l.nombre}</option>`).join('');
         document.getElementById('ubicacion').innerHTML = ops;
         document.getElementById('filtroUbicacion').innerHTML = '<option value="Todas">Todas las Ubicaciones</option>' + ops;
@@ -241,17 +263,6 @@
                 else { alerta().fire('Error', 'Datos incorrectos', 'error'); }
             }
         } else { esAdmin=false; localStorage.clear(); aplicarPermisos(); }
-    }
-
-    async function cambiarPassword() {
-        const u = localStorage.getItem("itt_user");
-        const { value: oldP } = await alerta().fire({ title: 'Clave Actual', input: 'password', showCancelButton: true });
-        const { value: newP } = await alerta().fire({ title: 'Nueva Clave', input: 'password', showCancelButton: true });
-        if (oldP && newP) {
-            const res = await fetch(`${URL_API}/cambiar-password`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user:u, old_pass:oldP, new_pass:newP }) });
-            if (res.ok) alerta().fire('Éxito', 'Clave cambiada', 'success');
-            else alerta().fire('Error', 'La clave actual es incorrecta', 'error');
-        }
     }
 
     function aplicarPermisos() {
@@ -273,10 +284,10 @@
         document.getElementById('tipo').value = e.tipo; document.getElementById('estado').value = e.estado;
         new bootstrap.Modal(document.getElementById('modalEquipo')).show();
     };
-    window.eliminarEq = async (id) => { if ((await alerta().fire({title:'¿Eliminar?', showCancelButton:true, icon: 'warning'})).isConfirmed) { await fetch(`${URL_API}/eliminar/${id}`, { method: 'DELETE' }); cargarDatos(); } };
+    window.eliminarEq = async (id) => { if ((await alerta().fire({title:'¿Eliminar?', icon: 'warning', showCancelButton:true})).isConfirmed) { await fetch(`${URL_API}/eliminar/${id}`, { method: 'DELETE' }); cargarDatos(); } };
     window.abrirGestionLabs = () => new bootstrap.Modal(document.getElementById('modalLabs')).show();
     window.agregarLab = async () => { const n = document.getElementById('nuevoLabNombre').value; if (!n) return; await fetch(`${URL_API}/laboratorios`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({nombre:n}) }); document.getElementById('nuevoLabNombre').value = ''; cargarDatos(); };
-    window.eliminarLab = async (id) => { if ((await alerta().fire({title:'¿Borrar?', showCancelButton:true, icon: 'warning'})).isConfirmed) { await fetch(`${URL_API}/laboratorios/${id}`, { method: 'DELETE' }); cargarDatos(); } };
+    window.eliminarLab = async (id) => { if ((await alerta().fire({title:'¿Borrar?', icon: 'warning', showCancelButton:true})).isConfirmed) { await fetch(`${URL_API}/laboratorios/${id}`, { method: 'DELETE' }); cargarDatos(); } };
 
     document.getElementById('form-equipo').onsubmit = async (ev) => {
         ev.preventDefault();
@@ -285,6 +296,17 @@
         await fetch(id ? `${URL_API}/editar/${id}` : `${URL_API}/agregar`, { method: id ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(d) });
         bootstrap.Modal.getInstance(document.getElementById('modalEquipo')).hide(); cargarDatos();
     };
+
+    async function cambiarPassword() {
+        const u = localStorage.getItem("itt_user");
+        const { value: oldP } = await alerta().fire({ title: 'Clave Actual', input: 'password', showCancelButton: true });
+        const { value: newP } = await alerta().fire({ title: 'Nueva Clave', input: 'password', showCancelButton: true });
+        if (oldP && newP) {
+            const res = await fetch(`${URL_API}/cambiar-password`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ user:u, old_pass:oldP, new_pass:newP }) });
+            if (res.ok) alerta().fire('Éxito', 'Clave cambiada', 'success');
+            else alerta().fire('Error', 'Incorrecta', 'error');
+        }
+    }
 
     cargarDatos();
 </script>
